@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASP - Pharaoh's Portal v.7.8</title>
+    <title>ASP - Pharaoh's Portal v.8.2 Final</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- ESTILOS VISUALES v.7.7 (LOGO SIN CAJA) - INTACTOS --- */
+        /* --- ESTILOS VISUALES (INTACTOS) --- */
         :root { 
             --gold: #FFD700; 
             --gold-dim: #b8860b;
             --bg: #050505; 
-            --card-bg: rgba(20, 20, 20, 0.85); 
             --green: #00ff41; 
             --gray: #888; 
             --alert: #ffcc00; 
             --red: #ff3333; 
             --admin: #ff0000;
-            --glow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
 
         body { 
@@ -52,7 +50,7 @@
 
         @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
 
-        /* --- CAJA TRANSPARENTE --- */
+        /* CAJA TRANSPARENTE */
         .header-box { 
             width: 100%; 
             margin-bottom: 25px; 
@@ -63,7 +61,6 @@
             filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); 
         }
         .header-img:hover { transform: scale(1.02); }
-        /* -------------------------------------------- */
         
         button { 
             border: none; padding: 16px; font-weight: 700; cursor: pointer; 
@@ -126,6 +123,8 @@
         
         .live-dot { height: 8px; width: 8px; background-color: #444; border-radius: 50%; display: inline-block; margin-left: 5px; }
         .live-on { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
+        
+        .status-msg { font-size: 0.85em; color: var(--green); margin: 10px 0; font-weight: bold; line-height: 1.4; text-shadow: 0 0 5px rgba(0, 255, 0, 0.3); }
     </style>
 </head>
 <body>
@@ -196,7 +195,7 @@
         
         <div style="background: rgba(0, 50, 0, 0.4); border: 1px solid var(--green); padding: 15px; border-radius: 12px; margin: 15px 0;">
             <span class="stat-label">YOU HAVE STAKED</span><br>
-            <span id="myStakedAmt" style="font-size: 1.6em; font-weight: bold; color: #fff; text-shadow: 0 0 10px rgba(0,255,0,0.5);">0.00</span> <span class="highlight">$ASP</span>
+            <span id="myStakedAmt" style="font-size: 1.6em; font-weight: bold; color: #fff; text-shadow: 0 0 10px rgba(0,255,0,0.5);">0.0000</span> <span class="highlight">$ASP</span>
         </div>
 
         <div style="background: rgba(60, 50, 0, 0.4); border: 1px solid var(--gold); padding: 15px; border-radius: 12px; margin: 15px 0;">
@@ -233,7 +232,14 @@
             </div>
         </div>
         
-        <button id="restakeBtn" class="btn-green" style="margin-top:20px; font-size: 0.9em;">♻️ RESTAKE TOTAL REWARDS</button>
+        <div id="restake-ui">
+            <button id="restakeBtn" class="btn-disabled" style="margin-top:20px; font-size: 0.9em;" disabled>♻️ NO REWARDS TO RESTAKE</button>
+        </div>
+        <div id="restake-loading" class="hidden" style="margin-top:20px;">
+            <button class="btn-disabled">PROCESSING... ⏳</button>
+            <p class="status-msg">Confirming on blockchain...<br>This process can take up to 30 minutes.<br>Please do not close this window.</p>
+        </div>
+
         <button id="addTokenBtn" class="btn-white" style="margin-top:10px; font-size: 0.7em; padding: 8px;">➕ Add $ASP to MetaMask</button>
     </div>
 
@@ -247,7 +253,6 @@
 </div>
 
 <script>
-    /* LÓGICA INTACTA (v.7.5) */
     const PRESALE_ADDR = "0xB8d6Ad736e6c3658A5f00D06579c3940628bDE1e"; 
     const STAKE_ADDR   = "0x3ca94720eabd279ff016e4f8ebc499e5903bdfa3";
     const ASP_ADDR     = "0x92e31ba849b8ee167265f54e84f99b39f0161837";
@@ -322,7 +327,6 @@
     function handleBuyInput(valStr) {
         const val = parseFloat(valStr);
         const buyBtn = document.getElementById('buyBtn');
-        
         document.getElementById('aspPreview').innerText = (val > 0) ? (val * 100).toLocaleString() : "0";
         document.getElementById('usdCost').innerText = (val > 0) ? (val * laxPriceUsd).toFixed(2) : "0.00";
 
@@ -355,7 +359,6 @@
         }
     };
 
-    // FUNCIONES ADMIN
     document.getElementById('adminWithdrawBtn').onclick = async () => {
         try {
             if(!confirm("Withdraw ALL LAX?")) return;
@@ -376,7 +379,6 @@
         } catch(e) { alert("Error: " + e.message); }
     };
 
-    // STAKING
     async function checkStakingAllowance(user) {
         try {
             const aspC = new ethers.Contract(ASP_ADDR, ABI, provider);
@@ -407,7 +409,6 @@
         } catch(e) { alert("Staking failed."); showStep('stk', 2); }
     };
     
-    // BOTÓN UNSTAKE
     document.getElementById('unstakeBtn').onclick = async () => {
         try {
             if(!confirm("Are you sure? This will withdraw EVERYTHING (Stake + Rewards).")) return;
@@ -419,14 +420,23 @@
         } catch(e) { alert("Error: Contract still locked or transaction failed."); }
     };
 
+    // RESTAKE
     document.getElementById('restakeBtn').onclick = async () => {
         try {
+            document.getElementById('restake-ui').classList.add('hidden');
+            document.getElementById('restake-loading').classList.remove('hidden');
+
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer);
             const tx = await stkC.restakeRewards({ gasLimit: 1000000 });
             await tx.wait();
+            
             alert("Restake Successful!");
             window.location.reload();
-        } catch(e) { alert("Restake failed."); }
+        } catch(e) { 
+            alert("Restake failed."); 
+            document.getElementById('restake-loading').classList.add('hidden');
+            document.getElementById('restake-ui').classList.remove('hidden');
+        }
     };
 
     async function loadData() {
@@ -442,7 +452,8 @@
             document.getElementById('tokensSold').innerText = Math.max(0, INITIAL_SUPPLY - left).toLocaleString();
 
             const rawAsp = await aspC.balanceOf(user);
-            document.getElementById('userAspBal').innerText = parseFloat(ethers.utils.formatEther(rawAsp)).toFixed(2);
+            // --- CAMBIO AQUÍ: 4 DECIMALES EN WALLET DISPONIBLE ---
+            document.getElementById('userAspBal').innerText = parseFloat(ethers.utils.formatEther(rawAsp)).toFixed(4);
             
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, provider);
             document.getElementById('dynamicAPY').innerText = await stkC.getCurrentAPY();
@@ -451,14 +462,28 @@
             const rewVal = parseFloat(ethers.utils.formatUnits(rew, 18));
             document.getElementById('myRewardsBig').innerText = rewVal.toFixed(4);
 
-            // --- LECTURA DEL STAKE Y TIEMPO (CLAVE PARA EL RESETEO) ---
+            // LOGICA BOTON RESTAKE
+            const restakeBtn = document.getElementById('restakeBtn');
+            if(rewVal > 0) {
+                restakeBtn.disabled = false;
+                restakeBtn.classList.remove('btn-disabled');
+                restakeBtn.classList.add('btn-green');
+                restakeBtn.innerText = "♻️ RESTAKE TOTAL REWARDS";
+            } else {
+                restakeBtn.disabled = true;
+                restakeBtn.classList.add('btn-disabled');
+                restakeBtn.classList.remove('btn-green');
+                restakeBtn.innerText = "♻️ NO REWARDS TO RESTAKE";
+            }
+
             const stakeData = await stkC.stakes(user); 
             const stakedAmount = parseFloat(ethers.utils.formatEther(stakeData[0]));
             const userStakeTime = parseInt(stakeData[1].toString());
 
-            document.getElementById('myStakedAmt').innerText = stakedAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            // --- CAMBIO AQUÍ: 4 DECIMALES EN STAKE ---
+            document.getElementById('myStakedAmt').innerText = stakedAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 4});
 
-            // --- LÓGICA DEL CANDADO ---
+            // LOGICA CANDADO
             const btn = document.getElementById('unstakeBtn');
             const statusEl = document.getElementById('dexStatus');
             
@@ -476,7 +501,6 @@
                     statusEl.innerText = "LIVE! COUNTDOWN ACTIVE ⏳";
                     statusEl.style.color = "#00ff00"; 
                     
-                    // CALCULAR SI HA PASADO EL TIEMPO DESDE EL ÚLTIMO STAKE DEL USUARIO
                     const unlockSecs = userStakeTime + (180 * 24 * 3600); 
                     const nowSecs = Math.floor(Date.now() / 1000);
 
