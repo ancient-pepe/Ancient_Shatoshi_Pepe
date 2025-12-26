@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASP - Pharaoh's Portal v.8.5 Final</title>
+    <title>ASP - Pharaoh's Portal v.8.6 Final</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -11,39 +11,22 @@
     <style>
         /* --- ESTILOS VISUALES (INTACTOS) --- */
         :root { 
-            --gold: #FFD700; 
-            --gold-dim: #b8860b;
-            --bg: #050505; 
-            --green: #00ff41; 
-            --gray: #888; 
-            --alert: #ffcc00; 
-            --red: #ff3333; 
-            --admin: #ff0000;
+            --gold: #FFD700; --gold-dim: #b8860b; --bg: #050505; --green: #00ff41; --gray: #888; --alert: #ffcc00; --red: #ff3333; --admin: #ff0000;
         }
 
         body { 
             background-color: var(--bg); 
             background-image: radial-gradient(circle at center, #1a1a00 0%, #000000 100%);
             color: var(--gold); 
-            font-family: 'Rajdhani', sans-serif; 
-            text-align: center; 
-            margin: 0; 
-            padding: 20px; 
-            padding-bottom: 80px; 
-            min-height: 100vh;
+            font-family: 'Rajdhani', sans-serif; text-align: center; margin: 0; padding: 20px; padding-bottom: 80px; min-height: 100vh;
         }
 
         h2, h3 { font-family: 'Cinzel', serif; letter-spacing: 2px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
         h2 { font-size: 2em; margin-bottom: 5px; color: #fff; text-shadow: 0 0 10px var(--gold); }
 
         .container { 
-            max-width: 480px; 
-            margin: auto; 
-            border: 1px solid var(--gold-dim); 
-            padding: 25px; 
-            border-radius: 20px; 
-            background: rgba(10, 10, 10, 0.6); 
-            backdrop-filter: blur(10px); 
+            max-width: 480px; margin: auto; border: 1px solid var(--gold-dim); padding: 25px; border-radius: 20px; 
+            background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(10px); 
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 215, 0, 0.05);
             animation: fadeIn 1s ease-out;
         }
@@ -51,22 +34,13 @@
         @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
 
         /* CAJA TRANSPARENTE */
-        .header-box { 
-            width: 100%; 
-            margin-bottom: 25px; 
-            display: flex; justify-content: center; align-items: center; background: transparent;
-        }
-        .header-img { 
-            max-width: 100%; height: auto; display: block; transition: transform 0.5s; 
-            filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); 
-        }
+        .header-box { width: 100%; margin-bottom: 25px; display: flex; justify-content: center; align-items: center; background: transparent; }
+        .header-img { max-width: 100%; height: auto; display: block; transition: transform 0.5s; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
         .header-img:hover { transform: scale(1.02); }
         
         button { 
-            border: none; padding: 16px; font-weight: 700; cursor: pointer; 
-            border-radius: 8px; margin: 12px 0; width: 100%; 
-            text-transform: uppercase; transition: 0.3s; 
-            font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; font-size: 1.1em;
+            border: none; padding: 16px; font-weight: 700; cursor: pointer; border-radius: 8px; margin: 12px 0; width: 100%; 
+            text-transform: uppercase; transition: 0.3s; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; font-size: 1.1em;
         }
         
         .btn-gold { background: linear-gradient(45deg, var(--gold-dim), var(--gold)); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
@@ -86,11 +60,8 @@
         .card { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 25px; padding-top: 20px; position: relative; }
         
         input { 
-            width: 100%; padding: 15px; border-radius: 8px; 
-            border: 1px solid #444; background: rgba(0,0,0,0.5); 
-            color: #fff; text-align: center; font-size: 1.4em; margin: 10px 0; 
-            box-sizing: border-box; font-family: 'Rajdhani', sans-serif;
-            transition: 0.3s;
+            width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #444; background: rgba(0,0,0,0.5); 
+            color: #fff; text-align: center; font-size: 1.4em; margin: 10px 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; transition: 0.3s;
         }
         input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
         
@@ -101,10 +72,8 @@
         
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
         .stat-box { 
-            background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px; 
-            border: 1px solid #333; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
-            transition: 0.3s;
+            background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; transition: 0.3s;
         }
         .stat-box:hover { border-color: var(--gold-dim); box-shadow: inset 0 0 10px rgba(255,215,0,0.05); }
         
@@ -125,6 +94,11 @@
         .live-on { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
         
         .status-msg { font-size: 0.85em; color: var(--green); margin: 10px 0; font-weight: bold; line-height: 1.4; text-shadow: 0 0 5px rgba(0, 255, 0, 0.3); }
+
+        /* Estilo para los botones extra del footer */
+        .extra-links { display: flex; gap: 10px; justify-content: center; margin-top: 30px; margin-bottom: 20px; }
+        .btn-small { font-size: 0.8em; padding: 10px 15px; width: auto; border: 1px solid var(--gold-dim); background: rgba(0,0,0,0.5); color: #ccc; }
+        .btn-small:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
     </style>
 </head>
 <body>
@@ -243,8 +217,9 @@
         <button id="addTokenBtn" class="btn-white" style="margin-top:10px; font-size: 0.7em; padding: 8px;">➕ Add $ASP to MetaMask</button>
     </div>
     
-    <div style="margin-top: 30px; margin-bottom: 20px;">
-        <button onclick="window.location.href='lore.html'" class="btn-white" style="width: auto; padding: 10px 30px; border-color: var(--gold); color: var(--gold); font-size: 0.9em;">📜 READ THE PROPHECY (LORE)</button>
+    <div class="extra-links">
+        <button onclick="window.location.href='lore.html'" class="btn-small">📜 READ LORE</button>
+        <button onclick="window.location.href='tokenomics.html'" class="btn-small">📊 TOKENOMICS</button>
     </div>
 
     <div class="footer">
@@ -424,7 +399,6 @@
         } catch(e) { alert("Error: Contract still locked or transaction failed."); }
     };
 
-    // RESTAKE
     document.getElementById('restakeBtn').onclick = async () => {
         try {
             document.getElementById('restake-ui').classList.add('hidden');
@@ -456,7 +430,6 @@
             document.getElementById('tokensSold').innerText = Math.max(0, INITIAL_SUPPLY - left).toLocaleString();
 
             const rawAsp = await aspC.balanceOf(user);
-            // 4 DECIMALES EN WALLET
             document.getElementById('userAspBal').innerText = parseFloat(ethers.utils.formatEther(rawAsp)).toFixed(4);
             
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, provider);
@@ -466,7 +439,6 @@
             const rewVal = parseFloat(ethers.utils.formatUnits(rew, 18));
             document.getElementById('myRewardsBig').innerText = rewVal.toFixed(4);
 
-            // LOGICA BOTON RESTAKE (MIN 5 ASP)
             const restakeBtn = document.getElementById('restakeBtn');
             if(rewVal >= 5) {
                 restakeBtn.disabled = false;
@@ -484,10 +456,8 @@
             const stakedAmount = parseFloat(ethers.utils.formatEther(stakeData[0]));
             const userStakeTime = parseInt(stakeData[1].toString());
 
-            // 4 DECIMALES EN STAKE
             document.getElementById('myStakedAmt').innerText = stakedAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 4});
 
-            // LOGICA CANDADO
             const btn = document.getElementById('unstakeBtn');
             const statusEl = document.getElementById('dexStatus');
             
