@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APEPE - Pharaoh's Portal v12 (VaultPro 2.1)</title>
+    <title>APEPE - Pharaoh's Portal v14 (Live Feed)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -34,8 +34,8 @@
         @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
 
         .header-box { width: 100%; margin-bottom: 25px; display: flex; justify-content: center; align-items: center; background: transparent; }
-        .header-img { max-width: 100%; height: auto; display: block; transition: transform 0.5s; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
-        .header-img:hover { transform: scale(1.02); }
+        /* Imagen rectangular */
+        .header-img { max-width: 100%; height: auto; display: block; border-radius: 12px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); }
         
         button { 
             border: none; padding: 16px; font-weight: 700; cursor: pointer; border-radius: 8px; margin: 12px 0; width: 100%; 
@@ -108,16 +108,27 @@
         /* SUPPLY INFO */
         .supply-info { margin-top: -10px; margin-bottom: 20px; font-size: 0.85em; color: #666; }
         .supply-gold { color: var(--gold); font-weight: bold; }
+
+        /* --- ESTILOS PARA EL LIVE FEED --- */
+        .feed-container { max-height: 250px; overflow-y: auto; text-align: left; margin-top: 15px; padding-right: 5px; }
+        .feed-item { padding: 10px 0; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; animation: fadeIn 0.5s ease-out; }
+        .feed-wallet { color: var(--gold); font-weight: bold; font-family: 'Rajdhani', sans-serif; }
+        .feed-amounts { text-align: right; line-height: 1.2; }
+        /* Scrollbar aesthetic */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header-box">
-        <img src="https://i.ibb.co/0VMjVWjS/1000042544.jpg" alt="Ancient Satoshi Pepe" class="header-img">
+        <img src="https://i.ibb.co/DPb1Xm4c/unnamed.jpg" alt="Ancient Pepe" class="header-img">
     </div>
     
-    <h2>ANCIENT SATOSHI PEPE 🏺</h2>
+    <h2>ANCIENT PEPE 🏺</h2>
     <p class="small-txt">OFFICIAL IMPERIAL PORTAL</p>
     
     <button id="connectBtn" class="btn-gold">Connect MetaMask 🦊</button>
@@ -150,6 +161,13 @@
         <div class="stat-box">
             <span class="stat-label">APEPE SOLD</span>
             <span id="tokensSold" class="stat-val">Loading...</span>
+        </div>
+    </div>
+
+    <div class="card" style="padding-bottom: 10px;">
+        <h3>📜 RECENT ACTIVITY</h3>
+        <div id="liveFeedList" class="feed-container small-txt">
+            <p style="text-align:center; opacity: 0.6;">Scanning blockchain... ⏳</p>
         </div>
     </div>
 
@@ -242,6 +260,10 @@
             <button class="btn-disabled">PROCESSING... ⏳</button>
             <p class="status-msg">Confirming on blockchain...</p>
         </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+             <button id="forceNetworkBtn" class="btn-white" style="font-size: 0.7em; width: auto; padding: 8px;">⛓️ Check Parallax Network</button>
+        </div>
     </div>
     
     <div class="extra-links">
@@ -251,10 +273,10 @@
 
     <div class="footer">
         <div class="social-links">
-            <a href="https://x.com/Ancientsatpepe" target="_blank">✖️ Ancient Satoshi Pepe</a>
+            <a href="https://x.com/Ancientsatpepe" target="_blank">✖️ Ancient Pepe</a>
             <a href="https://x.com/prlxchain" target="_blank">✖️ @prlxchain</a>
         </div>
-        <p class="small-txt" style="margin-top: 15px; opacity: 0.5;">© 2025 Ancient Satoshi Pepe</p>
+        <p class="small-txt" style="margin-top: 15px; opacity: 0.5;">© 2025 Ancient Pepe</p>
     </div>
 </div>
 
@@ -263,19 +285,18 @@
     const PRESALE_ADDR = "0x241D981d656808b30f2cC83242a307B6EF0A5e4f"; // V3
     const STAKE_ADDR   = "0x60BAB44FbD5fC025497AA1cf7366F4A73e71f9dD"; // V4 - VaultPro 2.1
     const APEPE_ADDR   = "0xd1060183552A88455f037a58B2aC639C7966a214"; // Token
-    
+    const PARALLAX_RPC = "https://rpc.parallaxchain.org"; // RPC público para el feed
+
     // --- CONFIGURACIÓN ---
     const INITIAL_SUPPLY = 3000000; 
     const OWNER_ADDRESS = "0x57DB4E4B824937d641D05Cd355027e85E2Fb4958"; 
-    
     let laxPriceUsd = 0.07; 
 
-    // --- ABI ACTUALIZADO ---
+    // --- ABI ACTUALIZADO (Incluye Evento TokensPurchased) ---
     const ABI = [
-        // Presale V3
+        "event TokensPurchased(address indexed buyer, uint256 nativeAmount, uint256 tokenAmount)", // Necesario para el feed
         "function buyTokens() public payable",
         "function withdrawNativeFunds() external",
-        // Vault V4 (VaultPro 2.1)
         "function stake(uint256 _amount) external", 
         "function compound() external",
         "function withdraw(uint256 _amount) external",
@@ -283,10 +304,9 @@
         "function enableDex() external",
         "function isSafetyModeActive() external view returns (bool)", 
         "function dexReady() public view returns (bool)",
-        "function isPenaltyActive() public view returns (bool)", 
+        "function isPenaltyActive() public view returns (bool)",
         "function earned(address account) public view returns (uint256)",
         "function balanceOf(address account) external view returns (uint256)", 
-        // ERC20
         "function approve(address s, uint256 a) public returns (bool)",
         "function allowance(address o, address s) public view returns (uint256)"
     ];
@@ -299,45 +319,68 @@
             if (accounts.length > 0) connect();
         }
         handleBuyInput("");
+        loadRecentBuys(); // Cargar el feed al inicio
     };
 
-    // --- LOGICA DE CAMBIO DE RED AUTOMÁTICO ---
-    async function switchToParallax() {
+    // --- FUNCIÓN PARA CARGAR EL FEED DE COMPRAS ---
+    async function loadRecentBuys() {
         try {
-            // 1. Intenta cambiar a la red (si ya la tiene)
-            await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: '0x83E' }], // 2110
-            });
-        } catch (switchError) {
-            // 2. Si da error 4902 (Red no encontrada), la añade automáticamente
-            if (switchError.code === 4902) {
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [{
-                            chainId: '0x83E',
-                            chainName: 'Parallax Mainnet',
-                            nativeCurrency: { name: 'LAX', symbol: 'LAX', decimals: 18 },
-                            rpcUrls: ['https://rpc.parallaxchain.org'],
-                            blockExplorerUrls: ['https://explorer.parallaxchain.org']
-                        }],
-                    });
-                } catch (addError) { console.error(addError); }
+            // Usamos un proveedor de lectura público para no depender de la wallet del usuario
+            const readProvider = new ethers.providers.JsonRpcProvider(PARALLAX_RPC);
+            const preC = new ethers.Contract(PRESALE_ADDR, ABI, readProvider);
+            const feedDiv = document.getElementById('liveFeedList');
+
+            const latestBlock = await readProvider.getBlockNumber();
+            // Consultamos los últimos 5000 bloques buscando eventos de compra
+            const filter = preC.filters.TokensPurchased();
+            const logs = await preC.queryFilter(filter, Math.max(0, latestBlock - 5000), latestBlock);
+
+            if (logs.length === 0) {
+                feedDiv.innerHTML = "<p style='text-align:center; opacity:0.6;'>No recent activity detected.</p>";
+                return;
             }
+
+            feedDiv.innerHTML = ""; // Limpiar mensaje de carga
+
+            // Invertimos para ver los más nuevos primero y tomamos los últimos 10
+            const recentLogs = logs.reverse().slice(0, 10);
+
+            recentLogs.forEach(log => {
+                const buyer = log.args.buyer;
+                const shortBuyer = buyer.substring(0, 6) + "..." + buyer.substring(38);
+                const laxAmt = parseFloat(ethers.utils.formatEther(log.args.nativeAmount)).toFixed(2);
+                const apepeAmt = parseFloat(ethers.utils.formatEther(log.args.tokenAmount)).toLocaleString(undefined, {maximumFractionDigits: 0});
+
+                const itemHtml = `
+                    <div class="feed-item">
+                        <div>
+                            <span style="font-size:1.2em;">🐸</span> Wallet <span class="feed-wallet">${shortBuyer}</span>
+                            <span class="small-txt"><br>bought</span>
+                        </div>
+                        <div class="feed-amounts">
+                            <span class="highlight">${apepeAmt} APEPE</span><br>
+                            <span class="small-txt">for ${laxAmt} LAX</span>
+                        </div>
+                    </div>
+                `;
+                feedDiv.innerHTML += itemHtml;
+            });
+
+        } catch (e) {
+            console.error("Feed Error:", e);
+            document.getElementById('liveFeedList').innerHTML = "<p style='text-align:center; color:var(--red);'>Error loading feed.</p>";
         }
     }
 
+    // --- CONEXIÓN SIMPLE (ESTILO V1) ---
     async function connect() {
         if (!window.ethereum) return;
         try {
             const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
             
-            // --- AQUÍ: Forzamos el cambio/añadido de red al conectar ---
-            await switchToParallax();
-
             provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
+            
             document.getElementById('connectBtn').innerText = "CONNECTED ✅";
             document.getElementById('connectBtn').classList.add('btn-green');
             document.getElementById('walletAddress').innerText = "Wallet: " + accs[0].substring(0,6) + "..." + accs[0].substring(38);
@@ -349,9 +392,32 @@
             checkStakingAllowance(accs[0]);
             loadData();
             
-            provider.on("block", (blockNumber) => { loadData(); });
+            provider.on("block", (blockNumber) => { 
+                loadData(); 
+                // Recargar el feed cada pocos bloques para mantenerlo fresco
+                if(blockNumber % 3 === 0) loadRecentBuys();
+            });
 
         } catch (e) { console.error(e); }
+    }
+
+    // --- FUNCIÓN DE RED SEGURA ---
+    async function ensureNetwork() {
+        try {
+            const net = await provider.getNetwork();
+            if (net.chainId !== 2110 && net.chainId !== 0x83E) {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: '0x83E',
+                        chainName: 'Parallax Mainnet',
+                        nativeCurrency: { name: 'LAX', symbol: 'LAX', decimals: 18 },
+                        rpcUrls: [PARALLAX_RPC],
+                        blockExplorerUrls: ['https://explorer.parallaxchain.org']
+                    }],
+                });
+            }
+        } catch(e) { console.error(e); }
     }
 
     function handleBuyInput(valStr) {
@@ -375,9 +441,12 @@
     document.getElementById('buyBtn').onclick = async () => {
         const amt = document.getElementById('laxInput').value;
         try {
+            await ensureNetwork();
+            
             const wei = ethers.utils.parseUnits(amt.toString(), 18);
             const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
             const tx = await preC.buyTokens({ value: wei, gasLimit: 200000 });
+            
             document.getElementById('buy-section').classList.add('hidden');
             document.getElementById('pre-loading').classList.remove('hidden');
             await tx.wait();
@@ -385,7 +454,7 @@
             window.location.reload();
         } catch(e) { 
             console.error(e);
-            alert("Transaction failed."); 
+            alert("Transaction failed. Check console or Network."); 
             document.getElementById('pre-loading').classList.add('hidden');
             document.getElementById('buy-section').classList.remove('hidden');
         }
@@ -395,6 +464,7 @@
     document.getElementById('adminWithdrawBtn').onclick = async () => {
         try {
             if(!confirm("Withdraw ALL LAX?")) return;
+            await ensureNetwork();
             const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
             const tx = await preC.withdrawNativeFunds();
             await tx.wait();
@@ -404,6 +474,7 @@
     document.getElementById('adminStartDexBtn').onclick = async () => {
         try {
             if(!confirm("ENABLE DEX & START VESTING?")) return;
+            await ensureNetwork();
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer);
             const tx = await stkC.enableDex();
             await tx.wait();
@@ -422,6 +493,7 @@
     }
     document.getElementById('stk-approveBtn').onclick = async () => {
         try {
+            await ensureNetwork();
             const aspC = new ethers.Contract(APEPE_ADDR, ABI, signer);
             const tx = await aspC.approve(STAKE_ADDR, ethers.constants.MaxUint256);
             showStep('stk', 'loading');
@@ -434,6 +506,7 @@
         const amt = document.getElementById('stakeInput').value;
         if (!amt || amt <= 0) return;
         try {
+            await ensureNetwork();
             const wei = ethers.utils.parseUnits(amt.toString(), 18);
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer);
             const tx = await stkC.stake(wei, { gasLimit: 500000 });
@@ -446,11 +519,11 @@
     
     document.getElementById('unstakeBtn').onclick = async () => {
         try {
+            await ensureNetwork();
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer);
             const user = await signer.getAddress();
             const bal = await stkC.balanceOf(user);
             
-            // Check penalty status for Alert Message
             let warningMsg = "Withdraw your Principal?";
             try {
                 const isPenalty = await stkC.isPenaltyActive();
@@ -467,9 +540,9 @@
         } catch(e) { alert("Error: " + e.message); }
     };
 
-    // COMPOUND (Restake)
     document.getElementById('restakeBtn').onclick = async () => {
         try {
+            await ensureNetwork();
             document.getElementById('restake-ui').classList.add('hidden');
             document.getElementById('restake-loading').classList.remove('hidden');
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer);
@@ -484,9 +557,9 @@
         }
     };
 
-    // CLAIM (Get Reward)
     document.getElementById('claimBtn').onclick = async () => {
         try {
+            await ensureNetwork();
             document.getElementById('restake-ui').classList.add('hidden');
             document.getElementById('restake-loading').classList.remove('hidden');
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer);
@@ -508,8 +581,6 @@
             document.getElementById('userLaxBal').innerText = parseFloat(ethers.utils.formatEther(rawLax)).toFixed(4);
             
             const aspC = new ethers.Contract(APEPE_ADDR, ABI, provider);
-            
-            // Stats
             const contractAspBal = await aspC.balanceOf(PRESALE_ADDR);
             const left = parseFloat(ethers.utils.formatEther(contractAspBal));
             const effectiveTotal = Math.max(INITIAL_SUPPLY, left);
@@ -523,16 +594,13 @@
             let percent = (sold / effectiveTotal) * 100;
             if (percent > 100) percent = 100;
             if (percent < 0) percent = 0;
-
             document.getElementById('progressBar').style.width = percent + "%";
             document.getElementById('progressText').innerText = percent.toFixed(2) + "% SOLD";
 
             const rawAsp = await aspC.balanceOf(user);
             document.getElementById('userAspBal').innerText = parseFloat(ethers.utils.formatEther(rawAsp)).toFixed(4);
             
-            // Vault Data
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, provider);
-            
             try {
                 const isSafety = await stkC.isSafetyModeActive();
                 if(isSafety) document.getElementById('security-warning').style.display = 'block';
@@ -543,7 +611,6 @@
             const rewVal = parseFloat(ethers.utils.formatUnits(rew, 18));
             document.getElementById('myRewardsBig').innerText = rewVal.toFixed(4);
 
-            // LOGICA COMPOUND (Mínimo 20)
             const restakeBtn = document.getElementById('restakeBtn');
             if(rewVal >= 20) {
                 restakeBtn.disabled = false;
@@ -557,25 +624,20 @@
                 restakeBtn.innerText = "♻️ COMPOUND (MIN 20 APEPE)";
             }
 
-            // LOGICA CLAIM & PENALTY
             const claimBtn = document.getElementById('claimBtn');
             const unstakeBtn = document.getElementById('unstakeBtn');
             const unstakeMsg = document.getElementById('unstake-msg');
             
             try {
                 const isPenalty = await stkC.isPenaltyActive();
-                
                 if(isPenalty) {
-                    // Si hay penalización (Antes de 6 meses)
                     claimBtn.disabled = true;
                     claimBtn.classList.add('btn-disabled');
                     claimBtn.classList.remove('btn-gold');
                     claimBtn.innerText = "🔒 CLAIM LOCKED (VESTING)";
-                    
                     unstakeBtn.innerText = "⚠️ UNSTAKE (YOU LOSE REWARDS)";
                     unstakeMsg.innerText = "*Early exit forfeits ALL profits.";
                 } else {
-                    // Libre (Pasaron 6 meses)
                     if(rewVal > 0) {
                         claimBtn.disabled = false;
                         claimBtn.classList.remove('btn-disabled');
@@ -584,7 +646,6 @@
                     } else {
                         claimBtn.innerText = "💰 CLAIM (NO REWARDS)";
                     }
-                    
                     unstakeBtn.innerText = "🔓 UNSTAKE PRINCIPAL";
                     unstakeMsg.innerText = "*You can withdraw safely.";
                 }
@@ -608,6 +669,10 @@
 
         } catch(e) { console.error(e); }
     }
+
+    document.getElementById('forceNetworkBtn').onclick = async () => {
+        await ensureNetwork();
+    };
 
     function showStep(type, step) {
         document.getElementById(`${type}-step1`).classList.add('hidden');
