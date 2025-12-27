@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APEPE - Pharaoh's Portal v24</title>
+    <title>APEPE - Pharaoh's Portal v25</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -48,47 +48,22 @@
         .small-txt { font-size: 0.85em; color: #aaa; letter-spacing: 0.5px; }
         .error-txt { font-size: 0.9em; color: var(--red); font-weight: bold; margin-top: 5px; display: none; text-transform: uppercase; }
 
-        /* --- LANDING VIEW (LOCK SCREEN) STYLES --- */
+        /* --- LANDING VIEW --- */
         #landing-view {
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-            background: radial-gradient(circle at center, #1a1a00 0%, #000000 90%);
-            z-index: 9999;
+            height: 100vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; box-sizing: border-box; background: radial-gradient(circle at center, #1a1a00 0%, #000000 90%); z-index: 9999;
         }
-
         .landing-logo { max-width: 180px; height: auto; margin-bottom: 20px; border-radius: 50%; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); animation: float 6s ease-in-out infinite; }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-
         .landing-title { font-size: 3em; color: var(--gold); text-shadow: 0 0 20px var(--gold-dim); margin: 0; }
         .landing-subtitle { color: #fff; letter-spacing: 3px; font-size: 0.9em; margin-bottom: 40px; opacity: 0.7; }
-
-        .btn-hero {
-            max-width: 300px;
-            padding: 20px;
-            font-size: 1.3em;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
-            color: #000;
-            border: 1px solid #fff;
-        }
+        .btn-hero { max-width: 300px; padding: 20px; font-size: 1.3em; background: linear-gradient(45deg, #FFD700, #FFA500); box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); color: #000; border: 1px solid #fff; }
         .btn-hero:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 215, 0, 0.7); }
-
-        /* Socials in Landing */
         .landing-socials { display: flex; gap: 20px; margin-bottom: 30px; }
-        .landing-social-link { 
-            color: #ccc; text-decoration: none; font-size: 1.1em; padding: 10px 20px;
-            background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 30px; transition: 0.3s;
-        }
+        .landing-social-link { color: #ccc; text-decoration: none; font-size: 1.1em; padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 30px; transition: 0.3s; }
         .landing-social-link:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); transform: translateY(-3px); }
 
-
-        /* --- DASHBOARD VIEW STYLES (v23) --- */
+        /* --- DASHBOARD VIEW --- */
         #dashboard-view { padding: 20px; padding-bottom: 80px; }
         
         .container { 
@@ -102,20 +77,13 @@
         .header-img { max-width: 100%; height: auto; display: block; border-radius: 12px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); margin-bottom: 10px; }
         .pc-header-controls { width: 100%; }
 
-        /* Socials in Dashboard Mobile */
         .social-box-mobile { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; width: 100%; }
         .social-box-pc { display: none; }
-        
-        .social-link { 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            color: #ccc; text-decoration: none; font-size: 0.9em; padding: 8px;
-            background: rgba(255,255,255,0.05); border-radius: 6px; border: 1px solid #333; transition: 0.3s;
-        }
+        .social-link { display: flex; align-items: center; justify-content: center; gap: 10px; color: #ccc; text-decoration: none; font-size: 0.9em; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px; border: 1px solid #333; transition: 0.3s; }
         .social-link:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
 
         .card { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 25px; padding-top: 20px; position: relative; }
         
-        /* Stats & UI Elements */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
         .stat-box { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; margin-bottom: 5px; }
@@ -155,7 +123,7 @@
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 51, 51, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); } }
 
         /* ========================================= */
-        /* === PC DESKTOP MODE === */
+        /* === PC DESKTOP MODE (ELEGANT FIX) === */
         /* ========================================= */
         @media (min-width: 1024px) {
             body:not(.mobile-mode) #dashboard-view {
@@ -169,29 +137,64 @@
                 max-width: 1200px; width: 95%; height: auto;
                 display: grid;
                 grid-template-columns: 350px 1fr 1fr; 
-                gap: 20px; padding: 30px;
+                gap: 30px; padding: 30px;
+                /* Eliminamos el borde y fondo del container principal en PC para que las cards floten */
+                background: transparent; border: none; box-shadow: none; backdrop-filter: none;
                 overflow: visible;
             }
 
+            /* HEADER CENTRADO Y ORGANIZADO */
             body:not(.mobile-mode) .header-box {
-                grid-column: 1 / -1; flex-direction: row; justify-content: flex-start; align-items: center;
-                margin-bottom: 20px; border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 15px;
+                grid-column: 1 / -1; 
+                flex-direction: row; 
+                justify-content: space-between; /* Logo centro, Botones derecha */
+                align-items: center;
+                margin-bottom: 20px; 
+                padding-bottom: 15px;
+                border-bottom: 1px solid rgba(255,215,0,0.2);
             }
 
-            body:not(.mobile-mode) .header-img { max-width: 60px; margin-bottom: 0; margin-right: 20px; }
-            body:not(.mobile-mode) h2 { margin: 0; font-size: 1.8em; text-align: left; }
-            body:not(.mobile-mode) .header-info-wrapper { flex-grow: 1; text-align: left; }
-            body:not(.mobile-mode) .pc-header-controls { width: auto; display: flex; gap: 15px; align-items: center; }
+            /* Logica para centrar el bloque Logo+Titulo */
+            body:not(.mobile-mode) .header-info-wrapper {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center; /* CENTRADO ABSOLUTO */
+                margin-left: 200px; /* Offset para compensar los botones de la derecha y centrar visualmente */
+            }
+
+            body:not(.mobile-mode) .header-img { max-width: 70px; margin: 0 15px 0 0; }
+            body:not(.mobile-mode) h2 { margin: 0; font-size: 2.2em; text-align: left; }
+            body:not(.mobile-mode) .small-txt { display: block; margin-left: 10px; }
+
+            body:not(.mobile-mode) .pc-header-controls { 
+                width: auto; display: flex; gap: 15px; align-items: center; 
+                min-width: 250px; justify-content: flex-end;
+            }
             body:not(.mobile-mode) #connectBtn { width: auto; margin: 0; padding: 10px 25px; font-size: 0.9em; }
             body:not(.mobile-mode) #addTokenBtn { width: auto; margin: 0; display: inline-block; }
             
-            body:not(.mobile-mode) #walletAddress { position: absolute; top: 95px; right: 30px; text-align: right; }
+            body:not(.mobile-mode) #walletAddress { 
+                position: absolute; top: 100px; right: 30px; text-align: right; 
+            }
 
             body:not(.mobile-mode) .panel-left { grid-column: 1 / 2; }
             body:not(.mobile-mode) .panel-center { grid-column: 2 / 3; }
             body:not(.mobile-mode) .panel-right { grid-column: 3 / 4; }
 
-            body:not(.mobile-mode) .card { margin-top: 10px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
+            /* ESTILO DE CARDS EN PC (RECUPERANDO EL LOOK FLOTANTE) */
+            body:not(.mobile-mode) .card, 
+            body:not(.mobile-mode) .panel-left > div { 
+                margin-top: 0; margin-bottom: 20px;
+                background: rgba(10, 10, 10, 0.7); 
+                backdrop-filter: blur(10px);
+                padding: 20px; 
+                border-radius: 15px; 
+                border: 1px solid var(--gold-dim);
+                box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            }
+            
             body:not(.mobile-mode) .feed-container { max-height: 300px; }
             body:not(.mobile-mode) .social-box-mobile { display: none; }
             body:not(.mobile-mode) .social-box-pc { display: flex; flex-direction: column; gap: 10px; margin-top: 20px;}
@@ -219,10 +222,12 @@
 <div id="dashboard-view" class="hidden">
     <div class="container">
         <div class="header-box">
-            <img src="https://i.ibb.co/DPb1Xm4c/unnamed.jpg" alt="Ancient Pepe" class="header-img">
             <div class="header-info-wrapper">
-                <h2>ANCIENT PEPE 🏺</h2>
-                <p class="small-txt" style="margin:0;">OFFICIAL IMPERIAL PORTAL</p>
+                <img src="https://i.ibb.co/DPb1Xm4c/unnamed.jpg" alt="Ancient Pepe" class="header-img">
+                <div>
+                    <h2>ANCIENT PEPE 🏺</h2>
+                    <p class="small-txt" style="margin:0; text-align: left;">OFFICIAL IMPERIAL PORTAL</p>
+                </div>
             </div>
             
             <div class="social-box-mobile">
@@ -462,7 +467,6 @@
         if(window.ethereum) {
             const accounts = await window.ethereum.request({ method: 'eth_accounts' });
             if (accounts.length > 0) {
-                // SI YA ESTA CONECTADO: Saltar Landing
                 connect();
             }
         }
@@ -479,10 +483,7 @@
         if (!window.ethereum) return;
         try {
             const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            
-            // TRANSICION DE VISTA
             unlockDashboard();
-
             provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
             document.getElementById('walletAddress').innerText = "Wallet: " + accs[0].substring(0,6) + "..." + accs[0].substring(38);
@@ -630,12 +631,15 @@
             
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, provider);
             
-            // --- TOTAL STAKED (LOGICA CORREGIDA) ---
+            // --- TOTAL STAKED (FIXED) ---
             try {
-                const totalStakedBn = await aspC.balanceOf(STAKE_ADDR); 
+                // VOLVEMOS A USAR totalSupply() DEL CONTRATO DE STAKING.
+                // Esto cuenta SOLO los tokens que la gente ha depositado, ignorando el pool de rewards.
+                const totalStakedBn = await stkC.totalSupply();
                 const totalStakedVal = parseFloat(ethers.utils.formatEther(totalStakedBn));
                 document.getElementById('totalStakedDisplay').innerText = totalStakedVal.toLocaleString(undefined, {maximumFractionDigits: 0}) + " APEPE";
             } catch(e) {
+                console.error("Error reading total staked:", e);
                 document.getElementById('totalStakedDisplay').innerText = "0 APEPE";
             }
 
@@ -692,67 +696,9 @@
         } catch(e) { console.error(e); }
     }
 
-    // Funcionalidad para el boton "Add Token" en la Landing Page
-    document.getElementById('addTokenBtnLanding').onclick = async () => { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: APEPE_ADDR, symbol: 'APEPE', decimals: 18 } }, }); };
-    
     document.getElementById('addTokenBtn').onclick = async () => { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: APEPE_ADDR, symbol: 'APEPE', decimals: 18 } }, }); };
+    document.getElementById('addTokenBtnLanding').onclick = async () => { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: APEPE_ADDR, symbol: 'APEPE', decimals: 18 } }, }); };
     document.getElementById('connectBtn').onclick = connect;
-
-    // Cargar feed en segundo plano (shallow scan) para estar listos
-    async function loadRecentBuys() {
-        try {
-            if (!provider) return; 
-            const preC = new ethers.Contract(PRESALE_ADDR, ABI, provider);
-            const feedDiv = document.getElementById('liveFeedList');
-            feedDiv.innerHTML = "<p style='text-align:center; opacity:0.6;'>Scanning blockchain (Deep Scan)... ⏳</p>";
-            
-            const latestBlock = await provider.getBlockNumber();
-            const BLOCK_RANGE = 50000; 
-            const fromBlock = Math.max(0, latestBlock - BLOCK_RANGE);
-            const filter = preC.filters.TokensPurchased();
-            const logs = await preC.queryFilter(filter, fromBlock, latestBlock);
-
-            if (logs.length === 0) {
-                feedDiv.innerHTML = "<p style='text-align:center; opacity:0.6;'>No recent activity detected.</p>";
-                document.getElementById('pagination').classList.add('hidden');
-                return;
-            }
-
-            allFeedLogs = logs.reverse();
-            currentPage = 1;
-            renderPage(currentPage);
-            document.getElementById('pagination').classList.remove('hidden');
-
-        } catch (e) { console.error("Feed Error:", e); document.getElementById('liveFeedList').innerHTML = "<p style='text-align:center; color:var(--red); opacity:0.7;'>Feed unavailable</p>"; }
-    }
-
-    function renderPage(page) {
-        const feedDiv = document.getElementById('liveFeedList');
-        feedDiv.innerHTML = "";
-        
-        const start = (page - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageLogs = allFeedLogs.slice(start, end);
-
-        pageLogs.forEach(log => {
-            const buyer = log.args.buyer;
-            const shortBuyer = buyer.substring(0, 6) + "..." + buyer.substring(38);
-            const laxAmt = parseFloat(ethers.utils.formatEther(log.args.nativeAmount)).toFixed(2);
-            const apepeAmt = parseFloat(ethers.utils.formatEther(log.args.tokenAmount)).toLocaleString(undefined, {maximumFractionDigits: 0});
-            const itemHtml = `
-                <div class="feed-item">
-                    <div><span style="font-size:1.2em;">🐸</span> Wallet <span class="feed-wallet">${shortBuyer}</span><span class="small-txt"><br>bought</span></div>
-                    <div class="feed-amounts"><span class="highlight">${apepeAmt} APEPE</span><br><span class="small-txt">for ${laxAmt} LAX</span></div>
-                </div>`;
-            feedDiv.innerHTML += itemHtml;
-        });
-
-        document.getElementById('pageIndicator').innerText = `Page ${page}`;
-        document.getElementById('prevPageBtn').disabled = (page === 1);
-        document.getElementById('nextPageBtn').disabled = (end >= allFeedLogs.length);
-    }
-
-    window.changePage = function(direction) { currentPage += direction; renderPage(currentPage); }
 </script>
 </body>
 </html>
