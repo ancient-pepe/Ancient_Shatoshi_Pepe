@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APEPE - Pharaoh's Portal v25</title>
+    <title>APEPE - Pharaoh's Portal v26</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- ESTILOS BASE (RECUPERADOS DE V23) --- */
+        /* --- ESTILOS BASE (MÓVIL / DEFAULT) --- */
         :root { 
             --gold: #FFD700; --gold-dim: #b8860b; --bg: #050505; --green: #00ff41; --gray: #888; --alert: #ffcc00; --red: #ff3333; --admin: #ff0000; --cyan: #00ffff;
         }
@@ -22,11 +22,10 @@
             overflow-x: hidden;
         }
 
-        /* Scrollbar Personalizado */
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
         h2, h3 { font-family: 'Cinzel', serif; letter-spacing: 2px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
         h2 { font-size: 2em; margin-bottom: 5px; color: #fff; text-shadow: 0 0 10px var(--gold); }
@@ -44,13 +43,12 @@
         /* HEADER SECTION */
         .header-box { width: 100%; margin-bottom: 25px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: transparent; }
         .header-img { max-width: 100%; height: auto; display: block; border-radius: 12px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); margin-bottom: 10px; }
-        /* v25 fix: Quitado border-radius 50% para que no sea circulo si no se desea */
         
         .pc-header-controls { width: 100%; }
 
-        /* SOCIAL LINKS STYLES */
+        /* SOCIAL LINKS (Mobile) */
         .social-box-mobile { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; width: 100%; }
-        .social-box-pc { display: none; /* Oculto en móvil por defecto */ }
+        .social-box-pc { display: none; }
         
         .social-link { 
             display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -66,18 +64,14 @@
         
         .btn-gold { background: linear-gradient(45deg, var(--gold-dim), var(--gold)); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5); }
-
         .btn-green { background: linear-gradient(45deg, #004d00, #00cc00); color: #fff; box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2); }
         .btn-green:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(0, 255, 0, 0.4); }
-
         .btn-red { background: linear-gradient(45deg, #8B0000, #FF0000); color: #fff; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2); border: 1px solid #ff3333; }
         .btn-red:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
-
         .btn-white { background: rgba(255,255,255,0.1); border: 1px solid #555; color: #ccc; }
         .btn-white:hover { background: rgba(255,255,255,0.2); color: #fff; border-color: #fff; }
+        .btn-disabled { background: #222 !important; color: #555 !important; border: 1px solid #333 !important; cursor: not-allowed !important; }
 
-        .btn-disabled { background: #222 !important; color: #555 !important; border: 1px solid #333 !important; cursor: not-allowed !important; transform: none !important; box-shadow: none !important; }
-        
         .card { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 25px; padding-top: 20px; position: relative; }
         
         input { 
@@ -92,51 +86,31 @@
         .error-txt { font-size: 0.9em; color: var(--red); font-weight: bold; margin-top: 5px; display: none; text-transform: uppercase; }
         
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-        .stat-box { 
-            background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; transition: 0.3s;
-        }
+        .stat-box { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.3s; }
         .stat-box:hover { border-color: var(--gold-dim); box-shadow: inset 0 0 10px rgba(255,215,0,0.05); }
-        
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
         .stat-val { font-size: 1.2em; font-weight: 700; color: #fff; }
 
         /* Admin */
         .admin-panel { border: 2px solid var(--admin); background: rgba(50, 0, 0, 0.5); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
         .btn-admin { background: var(--admin); color: #fff; font-size: 0.8em; margin: 5px 0; transition: 0.2s; cursor: pointer; border: 1px solid #500; }
-        .btn-admin:hover { background: #ff3333; transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
         
         .warning-box { background: rgba(255, 204, 0, 0.05); border: 1px solid var(--alert); color: var(--alert); padding: 10px; font-size: 0.8em; border-radius: 8px; margin-top: 15px; }
         .balance-info { display: flex; justify-content: space-between; font-size: 0.9em; width: 100%; margin: 5px auto 0; color: #ccc; }
-        
         .live-dot { height: 8px; width: 8px; background-color: #444; border-radius: 50%; display: inline-block; margin-left: 5px; }
         .live-on { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
-        
         .status-msg { font-size: 0.85em; color: var(--green); margin: 10px 0; font-weight: bold; line-height: 1.4; text-shadow: 0 0 5px rgba(0, 255, 0, 0.3); }
 
         .extra-links { display: flex; gap: 10px; justify-content: center; margin-top: 30px; margin-bottom: 20px; }
         .btn-small { font-size: 0.8em; padding: 10px 15px; width: auto; border: 1px solid var(--gold-dim); background: rgba(0,0,0,0.5); color: #ccc; }
         .btn-small:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
 
-        /* Security Box */
-        .security-blue-box { 
-            display:none; 
-            background: rgba(0, 255, 255, 0.05); 
-            border: 1px solid var(--cyan); 
-            padding: 12px; 
-            margin: 15px 0; 
-            border-radius: 12px; 
-            font-size: 0.85em; 
-            color: var(--cyan); 
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.4); 
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
-        }
+        .security-blue-box { display:none; background: rgba(0, 255, 255, 0.05); border: 1px solid var(--cyan); padding: 12px; margin: 15px 0; border-radius: 12px; font-size: 0.85em; color: var(--cyan); text-shadow: 0 0 5px rgba(0, 255, 255, 0.4); box-shadow: 0 0 10px rgba(0, 255, 255, 0.1); }
     
         /* Progress */
         .progress-container { width: 100%; background-color: #222; border-radius: 10px; margin: 15px 0; border: 1px solid #444; height: 28px; position: relative; overflow: hidden; }
         .progress-bar { height: 100%; background: linear-gradient(90deg, #b8860b, #FFD700, #00ff41); width: 0%; transition: width 0.8s ease-in-out; border-radius: 8px 0 0 8px; }
         .progress-text { position: absolute; width: 100%; text-align: center; top: 4px; font-size: 0.9em; color: #fff; font-weight: bold; text-shadow: 1px 1px 3px #000; z-index: 2; letter-spacing: 1px;}
-        
         .supply-info { margin-top: -10px; margin-bottom: 20px; font-size: 0.85em; color: #666; }
         .supply-gold { color: var(--gold); font-weight: bold; }
 
@@ -149,134 +123,86 @@
         .pagination-ctrl { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
         .page-btn { background: transparent; border: 1px solid #444; color: #888; padding: 5px 10px; font-size: 0.75em; cursor: pointer; border-radius: 4px; }
         .page-btn:hover { border-color: var(--gold); color: var(--gold); }
-        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: #555; }
 
-        /* Price Alert */
         #price-alert { display: none; background: rgba(255, 0, 0, 0.1); border: 1px dashed var(--red); padding: 10px; border-radius: 8px; margin: 15px 0; text-align: center; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 51, 51, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); } }
 
-        /* --- LANDING VIEW (LOCK SCREEN) STYLES --- */
+        /* --- LANDING VIEW --- */
         #landing-view {
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-            background: radial-gradient(circle at center, #1a1a00 0%, #000000 90%);
-            z-index: 9999;
+            height: 100vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; box-sizing: border-box; background: radial-gradient(circle at center, #1a1a00 0%, #000000 90%); z-index: 9999;
         }
-
         .landing-logo { max-width: 180px; height: auto; margin-bottom: 20px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); animation: float 6s ease-in-out infinite; }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-
         .landing-title { font-size: 3em; color: var(--gold); text-shadow: 0 0 20px var(--gold-dim); margin: 0; }
         .landing-subtitle { color: #fff; letter-spacing: 3px; font-size: 0.9em; margin-bottom: 40px; opacity: 0.7; }
-
-        .btn-hero {
-            max-width: 300px;
-            padding: 20px;
-            font-size: 1.3em;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
-            color: #000;
-            border: 1px solid #fff;
-        }
+        .btn-hero { max-width: 300px; padding: 20px; font-size: 1.3em; background: linear-gradient(45deg, #FFD700, #FFA500); box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); color: #000; border: 1px solid #fff; }
         .btn-hero:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 215, 0, 0.7); }
-
-        /* Socials in Landing */
         .landing-socials { display: flex; gap: 20px; margin-bottom: 30px; }
-        .landing-social-link { 
-            color: #ccc; text-decoration: none; font-size: 1.1em; padding: 10px 20px;
-            background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 30px; transition: 0.3s;
-        }
+        .landing-social-link { color: #ccc; text-decoration: none; font-size: 1.1em; padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 30px; transition: 0.3s; }
         .landing-social-link:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); transform: translateY(-3px); }
 
-
         /* ========================================= */
-        /* === PC DESKTOP MODE (SCROLL COMPLETO) === */
+        /* === PC DESKTOP MODE === */
         /* ========================================= */
         @media (min-width: 1024px) {
             body:not(.mobile-mode) #dashboard-view {
-                display: flex;
-                align-items: flex-start; /* Alineación superior para permitir scroll */
-                justify-content: center;
-                padding: 40px 0;
+                display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;
             }
 
             body:not(.mobile-mode) .container {
-                max-width: 1200px;
-                width: 95%;
-                height: auto; /* Altura automática */
-                display: grid;
-                grid-template-columns: 350px 1fr 1fr; 
-                gap: 20px;
-                padding: 30px;
-                overflow: visible; 
-                background: transparent; box-shadow: none; border: none; backdrop-filter: none; /* Quitamos caja contenedora grande en PC */
+                max-width: 1200px; width: 95%; height: auto;
+                display: grid; grid-template-columns: 350px 1fr 1fr; 
+                gap: 20px; padding: 30px; overflow: visible; 
+                background: transparent; box-shadow: none; border: none; backdrop-filter: none;
             }
 
-            /* --- Header Rediseñado para PC (CENTRADO) --- */
+            /* HEADER CENTRADO EN PC */
             body:not(.mobile-mode) .header-box {
                 grid-column: 1 / -1; 
                 flex-direction: row; 
-                justify-content: space-between; /* Espacia extremos */
+                justify-content: space-between; /* Espacia izq, centro, der */
                 align-items: center;
-                margin-bottom: 20px;
-                border-bottom: 1px solid rgba(255,215,0,0.2);
-                padding-bottom: 15px;
+                margin-bottom: 20px; border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 15px;
             }
 
-            /* Contenedor central para Logo + Titulo */
+            /* Elemento fantasma a la izquierda para equilibrar el header */
+            body:not(.mobile-mode) .header-box::before { content: ""; width: 250px; display: block; }
+
+            /* Centro */
             body:not(.mobile-mode) .header-info-wrapper {
-                flex-grow: 1;
-                display: flex;
-                justify-content: center; /* CENTRADO EN PC */
-                align-items: center;
-                margin-left: 200px; /* Offset para compensar botones derecha */
+                flex-grow: 1; display: flex; justify-content: center; align-items: center;
             }
+            body:not(.mobile-mode) .header-img { max-width: 60px; margin-bottom: 0; margin-right: 20px; }
+            body:not(.mobile-mode) h2 { margin: 0; font-size: 2em; text-align: left; }
 
-            body:not(.mobile-mode) .header-img {
-                max-width: 60px; margin-bottom: 0; margin-right: 20px;
-            }
-
-            body:not(.mobile-mode) h2 { margin: 0; font-size: 1.8em; text-align: left; }
-            
-            body:not(.mobile-mode) .pc-header-controls {
-                width: auto; display: flex; gap: 15px; align-items: center; justify-content: flex-end; min-width: 200px;
+            /* Derecha */
+            body:not(.mobile-mode) .pc-header-controls { 
+                width: 250px; display: flex; gap: 15px; align-items: center; justify-content: flex-end; 
             }
             
             body:not(.mobile-mode) #connectBtn { width: auto; margin: 0; padding: 10px 25px; font-size: 0.9em; }
             body:not(.mobile-mode) #addTokenBtn { width: auto; margin: 0; display: inline-block; }
-            
-            body:not(.mobile-mode) #walletAddress {
-                position: absolute; top: 95px; right: 30px; text-align: right;
-            }
+            body:not(.mobile-mode) #walletAddress { position: absolute; top: 95px; right: 30px; text-align: right; }
 
-            /* --- Columnas --- */
+            /* Columnas */
             body:not(.mobile-mode) .panel-left { grid-column: 1 / 2; }
             body:not(.mobile-mode) .panel-center { grid-column: 2 / 3; }
             body:not(.mobile-mode) .panel-right { grid-column: 3 / 4; }
 
-            /* Ajustes visuales para PC (Recuadros Estilo v23/Imperial) */
-            /* Aplicamos estilo de caja a cada panel individual en PC para que queden bonitos */
+            /* Estilo Cards en PC (Restaurado a v23) */
             body:not(.mobile-mode) .card, 
             body:not(.mobile-mode) .panel-left > div {
-                margin-top: 10px;
-                margin-bottom: 20px;
+                margin-top: 10px; margin-bottom: 20px;
                 background: rgba(10, 10, 10, 0.6); 
                 backdrop-filter: blur(10px);
-                padding: 20px;
-                border-radius: 15px;
-                border: 1px solid var(--gold-dim);
+                padding: 20px; border-radius: 15px; border: 1px solid var(--gold-dim);
                 box-shadow: 0 0 20px rgba(0,0,0,0.5);
             }
             
             body:not(.mobile-mode) .feed-container { max-height: 300px; }
-            body:not(.mobile-mode) .social-box-mobile { display: none; } /* Ocultar redes móviles en PC */
-            body:not(.mobile-mode) .social-box-pc { display: flex; flex-direction: column; gap: 10px; margin-top: 20px;} /* Mostrar redes PC */
+            body:not(.mobile-mode) .social-box-mobile { display: none; }
+            body:not(.mobile-mode) .social-box-pc { display: flex; flex-direction: column; gap: 10px; margin-top: 20px;}
         }
     </style>
 </head>
@@ -365,17 +291,14 @@
                     📜 RECENT ACTIVITY 
                     <a href="https://explorer.parallaxprotocol.org/address/0x241D981d656808b30f2cC83242a307B6EF0A5e4f?tab=token_transfers" target="_blank" style="font-size:0.5em; vertical-align:middle; text-decoration:none; margin-left:5px;" class="btn-white">🔗 View Explorer</a>
                 </h3>
-                
                 <div id="liveFeedList" class="feed-container small-txt">
                     <p style="text-align:center; opacity: 0.6; padding-top:20px;">Scanning blockchain... ⏳</p>
                 </div>
-
                 <div id="pagination" class="pagination-ctrl hidden">
                     <button id="prevPageBtn" class="page-btn" onclick="changePage(-1)">◀</button>
                     <span id="pageIndicator" class="small-txt" style="align-self:center;">P1</span>
                     <button id="nextPageBtn" class="page-btn" onclick="changePage(1)">▶</button>
                 </div>
-                
                 <div class="extra-links">
                     <button onclick="window.location.href='lore.html'" class="btn-small">📜 LORE</button>
                     <button onclick="window.location.href='tokenomics.html'" class="btn-small">📊 TOKENS</button>
@@ -386,26 +309,20 @@
         <div class="panel-center">
             <div class="card">
                 <h3>🚀 EXCLUSIVE PRE-SALE</h3>
-                
                 <div id="buy-section">
                     <div class="balance-info">
                         <span>Wallet Balance:</span>
                         <span class="highlight"><span id="userLaxBal">0.00</span> $LAX</span>
                     </div>
-                    
                     <input type="number" id="laxInput" placeholder="Min: 1 $LAX">
                     <p id="minError" class="error-txt">⚠️ MINIMUM 1 LAX TO BUY</p>
                     
                     <div id="price-alert">
                         <p class="small-txt" style="margin:0; color: #aaa;">CURRENT PRICE PHASE:</p>
                         <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 5px;">
-                            <div style="text-decoration: line-through; color: #666; font-size: 0.9em;">
-                                1 LAX = 20 APEPE
-                            </div>
+                            <div style="text-decoration: line-through; color: #666; font-size: 0.9em;">1 LAX = 20 APEPE</div>
                             <div style="color: #fff;">➝</div>
-                            <div class="highlight" style="font-size: 1.1em; color: var(--green);">
-                                1 LAX = <span id="currentRateDisplay">20</span> APEPE
-                            </div>
+                            <div class="highlight" style="font-size: 1.1em; color: var(--green);">1 LAX = <span id="currentRateDisplay">20</span> APEPE</div>
                         </div>
                         <div style="background: var(--red); color: white; font-size: 0.7em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; font-weight: bold;">
                             📈 PRICE INCREASED <span id="percentIncrease">0</span>%
@@ -420,10 +337,8 @@
                         <span class="highlight"><span id="aspPreview">0</span> $APEPE</span>
                         <span style="color:#fff;"><span id="usdCost">0.00</span> USD</span>
                     </div>
-
                     <button id="buyBtn" class="btn-green" style="margin-top: 20px;">PURCHASE $APEPE NOW</button>
                 </div>
-                
                 <div id="pre-loading" class="hidden">
                     <button class="btn-disabled">PROCESSING... ⏳</button>
                     <p class="status-msg">Confirming on blockchain...<br>Please wait.</p>
@@ -431,12 +346,8 @@
             </div>
             
             <div class="social-box-pc">
-                <a href="https://x.com/Ancientsatpepe" target="_blank" class="social-link">
-                    ✖️ @Ancientsatpepe
-                </a>
-                <a href="https://x.com/prlxchain" target="_blank" class="social-link">
-                    ✖️ @prlxchain
-                </a>
+                <a href="https://x.com/Ancientsatpepe" target="_blank" class="social-link">✖️ @Ancientsatpepe</a>
+                <a href="https://x.com/prlxchain" target="_blank" class="social-link">✖️ @prlxchain</a>
             </div>
         </div>
 
@@ -485,14 +396,10 @@
                     </div>
                     <input type="number" id="stakeInput" placeholder="Amount of $APEPE">
                     <button id="stakeBtn" class="btn-green">STAKE $APEPE</button>
-                    
                     <button id="unstakeBtn" class="btn-red" style="margin-top:15px; border-color:#555; background: #222;">🔓 UNSTAKE & EXIT</button>
                     <p id="unstake-msg" class="small-txt" style="margin-top:5px; font-size:0.7em;">*You can always withdraw your principal.</p>
-                    
                     <div class="warning-box">
-                        ⚠️ <b>IMPORTANT:</b> Rewards are vested for <b>6 MONTHS</b> after DEX Launch. 
-                        <br>Exit early = <b>LOSE REWARDS</b>.
-                        <br>Compound = <b>KEEP REWARDS</b>.
+                        ⚠️ <b>IMPORTANT:</b> Rewards are vested for <b>6 MONTHS</b> after DEX Launch.<br>Exit early = <b>LOSE REWARDS</b>.
                     </div>
                 </div>
                 
@@ -500,7 +407,6 @@
                     <button id="restakeBtn" class="btn-disabled" style="margin-top:20px; font-size: 0.9em;" disabled>♻️ NO REWARDS TO COMPOUND</button>
                     <button id="claimBtn" class="btn-disabled" style="margin-top:10px; font-size: 0.9em;" disabled>🔒 CLAIM LOCKED (VESTING)</button>
                 </div>
-
                 <div id="restake-loading" class="hidden" style="margin-top:20px;">
                     <button class="btn-disabled">PROCESSING... ⏳</button>
                     <p class="status-msg">Confirming on blockchain...</p>
@@ -524,9 +430,9 @@
     })();
 
     // --- CONTRACT ADDRESSES ---
-    const PRESALE_ADDR = "0x241D981d656808b30f2cC83242a307B6EF0A5e4f"; // V3
-    const STAKE_ADDR   = "0x60BAB44FbD5fC025497AA1cf7366F4A73e71f9dD"; // V4
-    const APEPE_ADDR   = "0xd1060183552A88455f037a58B2aC639C7966a214"; // Token
+    const PRESALE_ADDR = "0x241D981d656808b30f2cC83242a307B6EF0A5e4f"; 
+    const STAKE_ADDR   = "0x60BAB44FbD5fC025497AA1cf7366F4A73e71f9dD"; 
+    const APEPE_ADDR   = "0xd1060183552A88455f037a58B2aC639C7966a214"; 
     
     // --- CONFIGURACIÓN ---
     const INITIAL_SUPPLY = 3000000; 
@@ -572,7 +478,6 @@
         handleBuyInput("");
     };
 
-    // --- VIEW SWITCHING LOGIC ---
     function unlockDashboard() {
         document.getElementById('landing-view').classList.add('hidden');
         document.getElementById('dashboard-view').classList.remove('hidden');
@@ -582,10 +487,7 @@
         if (!window.ethereum) return;
         try {
             const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            
-            // TRANSICION DE VISTA
             unlockDashboard();
-
             provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
             document.getElementById('walletAddress').innerText = "Wallet: " + accs[0].substring(0,6) + "..." + accs[0].substring(38);
@@ -693,7 +595,6 @@
             const user = await signer.getAddress();
             const preC = new ethers.Contract(PRESALE_ADDR, ABI, provider);
             
-            // --- DETECTAR PRECIO ---
             try {
                 const rateBn = await preC.rate();
                 currentExchangeRate = rateBn.toNumber();
@@ -715,8 +616,10 @@
             const contractAspBal = await aspC.balanceOf(PRESALE_ADDR);
             const left = parseFloat(ethers.utils.formatEther(contractAspBal));
             const effectiveTotal = Math.max(INITIAL_SUPPLY, left);
-            let sold = effectiveTotal - left;
-            if (sold < 0) sold = 0; 
+            
+            // FIX BARRA DE VENTA: Asegurar que 'sold' no sea negativo
+            let sold = INITIAL_SUPPLY - left;
+            if (sold < 0) sold = 0; // Fix para que la barra no se rompa si hay tokens extra
             let laxRaised = sold / 20; 
 
             document.getElementById('laxRaised').innerText = laxRaised.toLocaleString(undefined, {maximumFractionDigits:2});
@@ -733,13 +636,13 @@
             
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, provider);
             
-            // --- TOTAL STAKED (FIXED: USA totalSupply PARA VER STAKE REAL) ---
+            // --- TOTAL STAKED (FIXED) ---
             try {
+                // USA totalSupply() -> Cuenta solo el principal stakeado por gente
                 const totalStakedBn = await stkC.totalSupply();
                 const totalStakedVal = parseFloat(ethers.utils.formatEther(totalStakedBn));
                 document.getElementById('totalStakedDisplay').innerText = totalStakedVal.toLocaleString(undefined, {maximumFractionDigits: 0}) + " APEPE";
             } catch(e) {
-                console.error("Error reading total staked:", e);
                 document.getElementById('totalStakedDisplay').innerText = "0 APEPE";
             }
 
@@ -761,13 +664,11 @@
                 statusEl.innerText = "LIVE! REWARDS GENERATING ⚡"; 
                 statusEl.style.color = "#00ff00";
                 blueMsg.style.display = 'none';
-                
                 try {
                     const rRate = await stkC.rewardRate();
                     const tSupply = await stkC.totalSupply();
                     const rRateNum = parseFloat(ethers.utils.formatEther(rRate));
                     const tSupplyNum = parseFloat(ethers.utils.formatEther(tSupply));
-
                     if (tSupplyNum > 0 && rRateNum > 0) {
                         const yearlyRewards = rRateNum * 31536000;
                         const apy = (yearlyRewards / tSupplyNum) * 100;
