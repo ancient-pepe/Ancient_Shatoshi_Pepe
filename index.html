@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APEPE - Pharaoh's Portal v18 (Pagination)</title>
+    <title>APEPE - Pharaoh's Portal v19 (Final APY)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -78,7 +78,7 @@
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
         .stat-val { font-size: 1.2em; font-weight: 700; color: #fff; }
 
-        /* Estilos mejorados Admin */
+        /* Admin */
         .admin-panel { border: 2px solid var(--admin); background: rgba(50, 0, 0, 0.5); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
         .btn-admin { background: var(--admin); color: #fff; font-size: 0.8em; margin: 5px 0; transition: 0.2s; cursor: pointer; border: 1px solid #500; }
         .btn-admin:hover { background: #ff3333; transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
@@ -101,28 +101,26 @@
 
         #security-warning { display:none; background: rgba(0, 255, 255, 0.05); border: 1px solid cyan; padding: 10px; margin-top: 10px; border-radius: 8px; font-size: 0.8em; color: cyan; text-shadow: 0 0 5px cyan; }
     
-        /* --- BARRA DE PROGRESO --- */
+        /* Progress */
         .progress-container { width: 100%; background-color: #222; border-radius: 10px; margin: 15px 0; border: 1px solid #444; height: 28px; position: relative; overflow: hidden; }
         .progress-bar { height: 100%; background: linear-gradient(90deg, #b8860b, #FFD700, #00ff41); width: 0%; transition: width 0.8s ease-in-out; border-radius: 8px 0 0 8px; }
         .progress-text { position: absolute; width: 100%; text-align: center; top: 4px; font-size: 0.9em; color: #fff; font-weight: bold; text-shadow: 1px 1px 3px #000; z-index: 2; letter-spacing: 1px;}
         
-        /* SUPPLY INFO */
         .supply-info { margin-top: -10px; margin-bottom: 20px; font-size: 0.85em; color: #666; }
         .supply-gold { color: var(--gold); font-weight: bold; }
 
-        /* --- ESTILOS PARA EL LIVE FEED --- */
+        /* Feed */
         .feed-container { text-align: left; margin-top: 15px; padding-right: 5px; min-height: 200px; }
         .feed-item { padding: 10px 0; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; animation: fadeIn 0.5s ease-out; }
         .feed-wallet { color: var(--gold); font-weight: bold; font-family: 'Rajdhani', sans-serif; }
         .feed-amounts { text-align: right; line-height: 1.2; }
         
-        /* Controles de Paginación */
         .pagination-ctrl { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
         .page-btn { background: transparent; border: 1px solid #444; color: #888; padding: 5px 10px; font-size: 0.75em; cursor: pointer; border-radius: 4px; }
         .page-btn:hover { border-color: var(--gold); color: var(--gold); }
         .page-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: #555; }
 
-        /* AVISO PRECIO */
+        /* Price Alert */
         #price-alert { display: none; background: rgba(255, 0, 0, 0.1); border: 1px dashed var(--red); padding: 10px; border-radius: 8px; margin: 15px 0; text-align: center; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 51, 51, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); } }
 
@@ -183,7 +181,7 @@
     <div class="card" style="padding-bottom: 15px;">
         <h3 style="margin-bottom:5px;">
             📜 RECENT ACTIVITY 
-            <a href="https://explorer.parallaxchain.org/address/0x241D981d656808b30f2cC83242a307B6EF0A5e4f" target="_blank" style="font-size:0.5em; vertical-align:middle; text-decoration:none; margin-left:5px;" class="btn-white">🔗 View Explorer</a>
+            <a href="https://explorer.parallaxprotocol.org/address/0x241D981d656808b30f2cC83242a307B6EF0A5e4f?tab=token_transfers" target="_blank" style="font-size:0.5em; vertical-align:middle; text-decoration:none; margin-left:5px;" class="btn-white">🔗 View Explorer</a>
         </h3>
         
         <div id="liveFeedList" class="feed-container small-txt">
@@ -333,11 +331,11 @@
     const OWNER_ADDRESS = "0x57DB4E4B824937d641D05Cd355027e85E2Fb4958"; 
     let laxPriceUsd = 0.07; 
     let currentExchangeRate = 20; 
-    let allFeedLogs = []; // Almacena todas las compras para paginación
+    let allFeedLogs = []; 
     let currentPage = 1;
     const itemsPerPage = 5;
 
-    // --- ABI ---
+    // --- ABI COMPLETO (INCLUYE CÁLCULO APY) ---
     const ABI = [
         "event TokensPurchased(address indexed buyer, uint256 nativeAmount, uint256 tokenAmount)",
         "function buyTokens() public payable",
@@ -355,7 +353,9 @@
         "function approve(address s, uint256 a) public returns (bool)",
         "function allowance(address o, address s) public view returns (uint256)",
         "function rate() public view returns (uint256)",
-        "function setRate(uint256 _newRate) external"
+        "function setRate(uint256 _newRate) external",
+        "function rewardRate() view returns (uint256)", // Para APY
+        "function totalSupply() view returns (uint256)" // Para APY
     ];
 
     let signer, provider;
@@ -368,7 +368,7 @@
         handleBuyInput("");
     };
 
-    // --- CARGA DE FEED CON PAGINACIÓN ---
+    // --- FEED + PAGINACIÓN ---
     async function loadRecentBuys() {
         try {
             if (!provider) return; 
@@ -388,7 +388,6 @@
                 return;
             }
 
-            // Guardar logs invertidos (más nuevos primero)
             allFeedLogs = logs.reverse();
             currentPage = 1;
             renderPage(currentPage);
@@ -397,7 +396,6 @@
         } catch (e) { console.error("Feed Error:", e); document.getElementById('liveFeedList').innerHTML = "<p style='text-align:center; color:var(--red); opacity:0.7;'>Feed unavailable</p>"; }
     }
 
-    // --- RENDERIZAR PÁGINA ---
     function renderPage(page) {
         const feedDiv = document.getElementById('liveFeedList');
         feedDiv.innerHTML = "";
@@ -419,16 +417,12 @@
             feedDiv.innerHTML += itemHtml;
         });
 
-        // Actualizar botones
         document.getElementById('pageIndicator').innerText = `Page ${page}`;
         document.getElementById('prevPageBtn').disabled = (page === 1);
         document.getElementById('nextPageBtn').disabled = (end >= allFeedLogs.length);
     }
 
-    window.changePage = function(direction) {
-        currentPage += direction;
-        renderPage(currentPage);
-    }
+    window.changePage = function(direction) { currentPage += direction; renderPage(currentPage); }
 
     async function connect() {
         if (!window.ethereum) return;
@@ -495,7 +489,7 @@
         } catch(e) { console.error(e); alert("Transaction failed."); document.getElementById('pre-loading').classList.add('hidden'); document.getElementById('buy-section').classList.remove('hidden'); }
     };
 
-    // --- ADMIN ACTIONS (SAFE) ---
+    // --- ADMIN ACTIONS ---
     document.getElementById('adminWithdrawBtn').onclick = async () => {
         try { if(!confirm("⚠️ SECURITY CHECK\n\nWithdraw ALL LAX from contract to your wallet?")) return; await ensureNetwork(); const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer); const tx = await preC.withdrawNativeFunds(); await tx.wait(); alert("FUNDS WITHDRAWN! 💰"); } catch(e) { alert("Error: " + e.message); }
     };
@@ -540,7 +534,7 @@
                     document.getElementById('price-alert').style.display = 'none';
                 }
                 handleBuyInput(document.getElementById('laxInput').value);
-            } catch(e) { console.log("Error fetching rate", e); }
+            } catch(e) {}
 
             const rawLax = await provider.getBalance(user);
             document.getElementById('userLaxBal').innerText = parseFloat(ethers.utils.formatEther(rawLax)).toFixed(4);
@@ -559,7 +553,6 @@
             let percent = (sold / effectiveTotal) * 100;
             let displayPercent = percent.toFixed(2);
             if (sold > 0 && percent < 0.01) displayPercent = "< 0.01";
-            
             document.getElementById('progressBar').style.width = Math.max(percent, 1) + "%"; 
             document.getElementById('progressText').innerText = displayPercent + "% SOLD";
 
@@ -577,11 +570,27 @@
             if(rewVal >= 20) { restakeBtn.disabled = false; restakeBtn.classList.remove('btn-disabled'); restakeBtn.classList.add('btn-green'); restakeBtn.innerText = "♻️ COMPOUND REWARDS (RESTAKE)"; } else { restakeBtn.disabled = true; restakeBtn.classList.add('btn-disabled'); restakeBtn.classList.remove('btn-green'); restakeBtn.innerText = "♻️ COMPOUND (MIN 20 APEPE)"; }
 
             const claimBtn = document.getElementById('claimBtn'); const unstakeBtn = document.getElementById('unstakeBtn'); const unstakeMsg = document.getElementById('unstake-msg');
-            try { const isPenalty = await stkC.isPenaltyActive(); if(isPenalty) { claimBtn.disabled = true; claimBtn.classList.add('btn-disabled'); claimBtn.classList.remove('btn-gold'); claimBtn.innerText = "🔒 CLAIM LOCKED (VESTING)"; unstakeBtn.innerText = "⚠️ UNSTAKE (YOU LOSE REWARDS)"; unstakeMsg.innerText = "*Early exit forfeits ALL profits."; } else { if(rewVal > 0) { claimBtn.disabled = false; claimBtn.classList.remove('btn-disabled'); claimBtn.classList.add('btn-gold'); claimBtn.innerText = "💰 CLAIM REWARDS TO WALLET"; } else { claimBtn.innerText = "💰 CLAIM (NO REWARDS)"; } unstakeBtn.innerText = "🔓 UNSTAKE PRINCIPAL"; unstakeMsg.innerText = "*You can withdraw safely."; } } catch(e) { console.log("Dex not started yet"); }
+            try { const isPenalty = await stkC.isPenaltyActive(); if(isPenalty) { claimBtn.disabled = true; claimBtn.classList.add('btn-disabled'); claimBtn.classList.remove('btn-gold'); claimBtn.innerText = "🔒 CLAIM LOCKED (VESTING)"; unstakeBtn.innerText = "⚠️ UNSTAKE (YOU LOSE REWARDS)"; unstakeMsg.innerText = "*Early exit forfeits ALL profits."; } else { if(rewVal > 0) { claimBtn.disabled = false; claimBtn.classList.remove('btn-disabled'); claimBtn.classList.add('btn-gold'); claimBtn.innerText = "💰 CLAIM REWARDS TO WALLET"; } else { claimBtn.innerText = "💰 CLAIM (NO REWARDS)"; } unstakeBtn.innerText = "🔓 UNSTAKE PRINCIPAL"; unstakeMsg.innerText = "*You can withdraw safely."; } } catch(e) {}
 
             const stakedBal = await stkC.balanceOf(user);
             const stakedAmount = parseFloat(ethers.utils.formatEther(stakedBal));
             document.getElementById('myStakedAmt').innerText = stakedAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 4});
+
+            // --- INTENTO DE CÁLCULO DE APY REAL ---
+            try {
+                const rRate = await stkC.rewardRate();
+                const tSupply = await stkC.totalSupply();
+                const rRateNum = parseFloat(ethers.utils.formatEther(rRate));
+                const tSupplyNum = parseFloat(ethers.utils.formatEther(tSupply));
+
+                if (tSupplyNum > 0 && rRateNum > 0) {
+                    // Formula: (Tokens por segundo * segundos al año) / Total Staked * 100
+                    const yearlyRewards = rRateNum * 31536000;
+                    const apy = (yearlyRewards / tSupplyNum) * 100;
+                    document.getElementById('dynamicAPY').innerText = apy.toLocaleString(undefined, {maximumFractionDigits: 0}) + "% APY";
+                    document.getElementById('dynamicAPY').style.color = "#00ff00";
+                }
+            } catch(e) { /* Si falla, se queda el texto por defecto "DYNAMIC HIGH YIELD" */ }
 
             const statusEl = document.getElementById('dexStatus');
             try { const isLaunched = await stkC.dexReady(); if(!isLaunched) { statusEl.innerText = "WAITING FOR LAUNCH..."; statusEl.style.color = "cyan"; } else { statusEl.innerText = "LIVE! REWARDS GENERATING ⚡"; statusEl.style.color = "#00ff00"; } } catch(e) {}
