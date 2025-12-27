@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APEPE - Pharaoh's Portal v11 (VaultPro 2.1)</title>
+    <title>APEPE - Pharaoh's Portal v12 (VaultPro 2.1)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -242,8 +242,7 @@
             <button class="btn-disabled">PROCESSING... ⏳</button>
             <p class="status-msg">Confirming on blockchain...</p>
         </div>
-
-        </div>
+    </div>
     
     <div class="extra-links">
         <button onclick="window.location.href='lore.html'" class="btn-small">📜 READ LORE</button>
@@ -284,7 +283,7 @@
         "function enableDex() external",
         "function isSafetyModeActive() external view returns (bool)", 
         "function dexReady() public view returns (bool)",
-        "function isPenaltyActive() public view returns (bool)", // Nueva función
+        "function isPenaltyActive() public view returns (bool)", 
         "function earned(address account) public view returns (uint256)",
         "function balanceOf(address account) external view returns (uint256)", 
         // ERC20
@@ -302,15 +301,16 @@
         handleBuyInput("");
     };
 
-    // --- AUTO NETWORK SWITCH LOGIC ---
+    // --- LOGICA DE CAMBIO DE RED AUTOMÁTICO ---
     async function switchToParallax() {
         try {
+            // 1. Intenta cambiar a la red (si ya la tiene)
             await window.ethereum.request({
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId: '0x83E' }], // 2110
             });
         } catch (switchError) {
-            // This error code indicates that the chain has not been added to MetaMask.
+            // 2. Si da error 4902 (Red no encontrada), la añade automáticamente
             if (switchError.code === 4902) {
                 try {
                     await window.ethereum.request({
@@ -333,7 +333,7 @@
         try {
             const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
             
-            // AUTOMATICALLY TRY TO ADD/SWITCH NETWORK ON CONNECT
+            // --- AQUÍ: Forzamos el cambio/añadido de red al conectar ---
             await switchToParallax();
 
             provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -616,8 +616,6 @@
         document.getElementById(`${type}-${step === 1 ? 'step1' : step === 'loading' ? 'loading' : 'step2'}`).classList.remove('hidden');
     }
 
-    // Removed the manual addNetworkBtn listener because it's now automatic.
-    
     document.getElementById('addTokenBtn').onclick = async () => {
         await window.ethereum.request({
             method: 'wallet_watchAsset',
