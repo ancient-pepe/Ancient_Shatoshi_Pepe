@@ -151,34 +151,38 @@
             }
 
             body:not(.mobile-mode) .container {
-                max-width: 1200px; width: 95%; height: auto;
-                display: grid; grid-template-columns: 350px 1fr 1fr; 
-                gap: 20px; padding: 30px; overflow: visible; 
+                max-width: 1400px; /* AUMENTADO PARA MAS ESPACIO */
+                width: 98%; 
+                height: auto;
+                display: grid; 
+                grid-template-columns: 350px 1fr 350px; /* Columnas fijas a los lados, flexible centro */
+                gap: 40px; /* GAP AUMENTADO PARA SEPARAR PANELES */
+                padding: 30px; overflow: visible; 
                 background: transparent; box-shadow: none; border: none; backdrop-filter: none;
             }
 
             /* HEADER CENTRADO EN PC */
             body:not(.mobile-mode) .header-box {
                 grid-column: 1 / -1; 
-                flex-direction: row; 
-                justify-content: space-between; /* Espacia izq, centro, der */
+                display: grid;
+                grid-template-columns: 1fr auto 1fr; /* GRID DE 3 PARA CENTRADO PERFECTO */
                 align-items: center;
                 margin-bottom: 20px; border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 15px;
             }
 
-            /* Elemento fantasma a la izquierda para equilibrar el header */
-            body:not(.mobile-mode) .header-box::before { content: ""; width: 250px; display: block; }
+            /* Izquierda (Vacio o spacer) */
+            body:not(.mobile-mode) .header-box::before { content: ""; display: block; }
 
-            /* Centro */
+            /* Centro (Logo + Texto) */
             body:not(.mobile-mode) .header-info-wrapper {
-                flex-grow: 1; display: flex; justify-content: center; align-items: center;
+                display: flex; justify-content: center; align-items: center;
             }
             body:not(.mobile-mode) .header-img { max-width: 60px; margin-bottom: 0; margin-right: 20px; }
             body:not(.mobile-mode) h2 { margin: 0; font-size: 2em; text-align: left; }
 
-            /* Derecha */
+            /* Derecha (Botones) */
             body:not(.mobile-mode) .pc-header-controls { 
-                width: 250px; display: flex; gap: 15px; align-items: center; justify-content: flex-end; 
+                width: auto; display: flex; gap: 15px; align-items: center; justify-content: flex-end; 
             }
             
             body:not(.mobile-mode) #connectBtn { width: auto; margin: 0; padding: 10px 25px; font-size: 0.9em; }
@@ -187,7 +191,7 @@
 
             /* Columnas */
             body:not(.mobile-mode) .panel-left { grid-column: 1 / 2; }
-            body:not(.mobile-mode) .panel-center { grid-column: 2 / 3; }
+            body:not(.mobile-mode) .panel-center { grid-column: 2 / 3; min-width: 0; /* Prevenir desborde */ }
             body:not(.mobile-mode) .panel-right { grid-column: 3 / 4; }
 
             /* Estilo Cards en PC (Restaurado a v23) */
@@ -585,10 +589,10 @@
     }
 
     document.getElementById('stk-approveBtn').onclick = async () => { try { await ensureNetwork(); const aspC = new ethers.Contract(APEPE_ADDR, ABI, signer); const tx = await aspC.approve(STAKE_ADDR, ethers.constants.MaxUint256); showStep('stk', 'loading'); await tx.wait(); showStep('stk', 2); } catch(e) { showStep('stk', 1); } };
-    document.getElementById('stakeBtn').onclick = async () => { const amt = document.getElementById('stakeInput').value; if (!amt || amt <= 0) return; try { await ensureNetwork(); const wei = ethers.utils.parseUnits(amt.toString(), 18); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.stake(wei, { gasLimit: 500000 }); showStep('stk', 'loading'); await tx.wait(); alert("STAKING SUCCESSFUL! 🔒"); window.location.reload(); } catch(e) { alert("Staking failed."); showStep('stk', 2); } };
-    document.getElementById('unstakeBtn').onclick = async () => { try { await ensureNetwork(); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const user = await signer.getAddress(); const bal = await stkC.balanceOf(user); let warningMsg = "Withdraw your Principal?"; try { const isPenalty = await stkC.isPenaltyActive(); if(isPenalty) warningMsg = "⚠️ WARNING: You are withdrawing BEFORE vesting ends.\n\nYou will receive your PRINCIPAL, but ALL REWARDS will be FORFEITED (Lost).\n\nAre you sure?"; } catch(e) {} if(bal.eq(0)) { alert("No stake to withdraw."); return; } if(!confirm(warningMsg)) return; const tx = await stkC.withdraw(bal, { gasLimit: 500000 }); await tx.wait(); alert("PRINCIPAL WITHDRAWN! 🔓"); window.location.reload(); } catch(e) { alert("Error: " + e.message); } };
-    document.getElementById('restakeBtn').onclick = async () => { try { await ensureNetwork(); document.getElementById('restake-ui').classList.add('hidden'); document.getElementById('restake-loading').classList.remove('hidden'); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.compound({ gasLimit: 500000 }); await tx.wait(); alert("Compound Successful! ♻️"); window.location.reload(); } catch(e) { alert("Compound failed (Min 20 APEPE required)."); document.getElementById('restake-loading').classList.add('hidden'); document.getElementById('restake-ui').classList.remove('hidden'); } };
-    document.getElementById('claimBtn').onclick = async () => { try { await ensureNetwork(); document.getElementById('restake-ui').classList.add('hidden'); document.getElementById('restake-loading').classList.remove('hidden'); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.getReward({ gasLimit: 500000 }); await tx.wait(); alert("Rewards Claimed! 💰"); window.location.reload(); } catch(e) { alert("Claim failed or Locked."); document.getElementById('restake-loading').classList.add('hidden'); document.getElementById('restake-ui').classList.remove('hidden'); } };
+    document.getElementById('stakeBtn').onclick = async () => { const amt = document.getElementById('stakeInput').value; if (!amt || amt <= 0) return; try { await ensureNetwork(); const wei = ethers.utils.parseUnits(amt.toString(), 18); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.stake(wei, { gasLimit: 500000 }); showStep('stk', 'loading'); await tx.wait(); setTimeout(() => loadData(), 3000); alert("STAKING SUCCESSFUL! 🔒"); window.location.reload(); } catch(e) { alert("Staking failed."); showStep('stk', 2); } };
+    document.getElementById('unstakeBtn').onclick = async () => { try { await ensureNetwork(); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const user = await signer.getAddress(); const bal = await stkC.balanceOf(user); let warningMsg = "Withdraw your Principal?"; try { const isPenalty = await stkC.isPenaltyActive(); if(isPenalty) warningMsg = "⚠️ WARNING: You are withdrawing BEFORE vesting ends.\n\nYou will receive your PRINCIPAL, but ALL REWARDS will be FORFEITED (Lost).\n\nAre you sure?"; } catch(e) {} if(bal.eq(0)) { alert("No stake to withdraw."); return; } if(!confirm(warningMsg)) return; const tx = await stkC.withdraw(bal, { gasLimit: 500000 }); await tx.wait(); setTimeout(() => loadData(), 3000); alert("PRINCIPAL WITHDRAWN! 🔓"); window.location.reload(); } catch(e) { alert("Error: " + e.message); } };
+    document.getElementById('restakeBtn').onclick = async () => { try { await ensureNetwork(); document.getElementById('restake-ui').classList.add('hidden'); document.getElementById('restake-loading').classList.remove('hidden'); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.compound({ gasLimit: 500000 }); await tx.wait(); setTimeout(() => loadData(), 3000); alert("Compound Successful! ♻️"); window.location.reload(); } catch(e) { alert("Compound failed (Min 20 APEPE required)."); document.getElementById('restake-loading').classList.add('hidden'); document.getElementById('restake-ui').classList.remove('hidden'); } };
+    document.getElementById('claimBtn').onclick = async () => { try { await ensureNetwork(); document.getElementById('restake-ui').classList.add('hidden'); document.getElementById('restake-loading').classList.remove('hidden'); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.getReward({ gasLimit: 500000 }); await tx.wait(); setTimeout(() => loadData(), 3000); alert("Rewards Claimed! 💰"); window.location.reload(); } catch(e) { alert("Claim failed or Locked."); document.getElementById('restake-loading').classList.add('hidden'); document.getElementById('restake-ui').classList.remove('hidden'); } };
 
     async function loadData() {
         try {
