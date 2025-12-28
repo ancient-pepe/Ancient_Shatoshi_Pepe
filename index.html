@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APEPE - Pharaoh's Portal v32</title>
+    <title>APEPE - Pharaoh's Portal v41</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -53,14 +53,17 @@
         .social-link:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
 
         button { border: none; padding: 16px; font-weight: 700; cursor: pointer; border-radius: 8px; margin: 12px 0; width: 100%; text-transform: uppercase; transition: 0.3s; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; font-size: 1.1em; }
+        /* Fix Disabled Buttons style */
+        button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+
         .btn-gold { background: linear-gradient(45deg, var(--gold-dim), var(--gold)); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
-        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5); }
+        .btn-gold:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5); }
         .btn-green { background: linear-gradient(45deg, #004d00, #00cc00); color: #fff; box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2); }
-        .btn-green:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(0, 255, 0, 0.4); }
+        .btn-green:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 20px rgba(0, 255, 0, 0.4); }
         .btn-red { background: linear-gradient(45deg, #8B0000, #FF0000); color: #fff; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2); border: 1px solid #ff3333; }
-        .btn-red:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+        .btn-red:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
         .btn-white { background: rgba(255,255,255,0.1); border: 1px solid #555; color: #ccc; }
-        .btn-white:hover { background: rgba(255,255,255,0.2); color: #fff; border-color: #fff; }
+        .btn-white:hover:not(:disabled) { background: rgba(255,255,255,0.2); color: #fff; border-color: #fff; }
         .btn-disabled { background: #222 !important; color: #555 !important; border: 1px solid #333 !important; cursor: not-allowed !important; }
 
         .card { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 25px; padding-top: 20px; position: relative; }
@@ -84,7 +87,7 @@
             transition: all 0.2s ease-in-out; cursor: pointer; border: 1px solid #500; 
             position: relative; z-index: 10; 
         }
-        .btn-admin:hover { 
+        .btn-admin:hover:not(:disabled) { 
             background: #ff0000 !important; border-color: #fff !important;
             transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 0, 0, 0.8) !important; 
         }
@@ -265,13 +268,15 @@
                         </div>
                     </div>
 
-                    <div style="display:flex; justify-content:center; margin-top:10px;">
-                        <span class="small-txt">You Recieve:</span>
+                    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                        <span class="small-txt">Recieve:</span>
+                        <span class="small-txt">Cost:</span>
                     </div>
-                    <div style="display:flex; justify-content:center; font-size: 1.4em; font-weight:bold; margin-bottom: 15px;">
+                    <div style="display:flex; justify-content:space-between; font-size: 1.1em; font-weight:bold;">
                         <span class="highlight"><span id="aspPreview">0</span> $APEPE</span>
+                        <span style="color:#fff;"><span id="usdCost">0.00</span> USD</span>
                     </div>
-                    <button id="buyBtn" class="btn-green" style="margin-top: 0px;">PURCHASE $APEPE NOW</button>
+                    <button id="buyBtn" class="btn-green" style="margin-top: 20px;">PURCHASE $APEPE NOW</button>
                     <p id="buy-warning" class="red-warning-small">Confirmation depends on block confirmation on the network, which can take up to 30 minutes in the worst case.</p>
                 </div>
                 <div id="pre-loading" class="hidden">
@@ -296,13 +301,18 @@
             <div id="adminPanel" class="admin-panel">
                 <h3 style="color:var(--admin); margin-top:0;">👑 PHARAOH COMMAND</h3>
                 <p class="small-txt">Authorized Access Only</p>
-                <button id="adminWithdrawBtn" class="btn-admin">💰 RETIRAR FONDOS (LAX)</button>
-                <button id="adminStartDexBtn" class="btn-admin">🚀 ENABLE DEX & VESTING</button>
                 
+                <button id="adminWithdrawBtn" class="btn-admin">💰 RETIRAR FONDOS (LAX)</button>
+                <p id="warn-withdraw" class="red-warning-small">Confirmation depends on block confirmation...</p>
+                
+                <button id="adminStartDexBtn" class="btn-admin">🚀 ENABLE DEX & VESTING</button>
+                <p id="warn-dex" class="red-warning-small">Confirmation depends on block confirmation...</p>
+
                 <div style="display:flex; gap:5px; justify-content:center; margin-top:5px;">
                     <button id="pauseBtn" class="btn-admin" style="background:#800; border-color:#f00;">⏸ PAUSE SALES</button>
                     <button id="unpauseBtn" class="btn-admin" style="background:#080; border-color:#0f0;">▶ UNPAUSE SALES</button>
                 </div>
+                <p id="warn-pause" class="red-warning-small">Confirmation depends on block confirmation...</p>
                 
                 <hr style="border-color: #500; margin: 10px 0;">
                 
@@ -311,6 +321,7 @@
                     <input type="number" id="newRateInput" placeholder="Ex: 20" style="font-size:0.9em; padding:8px; width: 60%;">
                     <button id="setRateBtn" class="btn-admin" style="width: auto; padding: 8px 15px;">SET RATE</button>
                 </div>
+                <p id="warn-rate" class="red-warning-small">Confirmation depends on block confirmation...</p>
             </div>
 
             <div class="progress-container">
@@ -443,7 +454,7 @@
     // --- CONFIGURACIÓN ---
     const INITIAL_SUPPLY = 3000000; 
     const OWNER_ADDRESS = "0x57DB4E4B824937d641D05Cd355027e85E2Fb4958"; 
-    
+    let laxPriceUsd = 0.07; 
     let currentExchangeRate = 20; 
     let allFeedLogs = []; 
     let currentPage = 1;
@@ -470,8 +481,9 @@
         "function setRate(uint256 _newRate) external",
         "function rewardRate() view returns (uint256)",
         "function totalSupply() view returns (uint256)",
-        // New: Pausable logic
-        "function setPaused(bool _state) external"
+        "function pauseSale() external",
+        "function unpauseSale() external",
+        "function paused() public view returns (bool)"
     ];
 
     let signer, provider;
@@ -528,8 +540,8 @@
         const val = parseFloat(valStr);
         const buyBtn = document.getElementById('buyBtn');
         const warnMsg = document.getElementById('buy-warning');
-        
         document.getElementById('aspPreview').innerText = (val > 0) ? (val * currentExchangeRate).toLocaleString() : "0";
+        document.getElementById('usdCost').innerText = (val > 0) ? (val * laxPriceUsd).toFixed(2) : "0.00";
         if (!val || val < 0.01) { 
             if(valStr !== "") document.getElementById('minError').style.display = 'block';
             buyBtn.disabled = true; buyBtn.classList.add('btn-disabled');
@@ -545,7 +557,6 @@
         const amt = document.getElementById('laxInput').value;
         const warnMsg = document.getElementById('buy-warning');
         if(warnMsg) warnMsg.style.display = 'block';
-
         try {
             await ensureNetwork();
             const wei = ethers.utils.parseUnits(amt.toString(), 18);
@@ -564,47 +575,66 @@
         }
     };
 
-    // --- ADMIN ACTIONS ---
-    document.getElementById('adminWithdrawBtn').onclick = async () => {
-        try { if(!confirm("⚠️ SECURITY CHECK\n\nWithdraw ALL LAX from contract to your wallet?")) return; await ensureNetwork(); const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer); const tx = await preC.withdrawNativeFunds(); await tx.wait(); alert("FUNDS WITHDRAWN! 💰"); } catch(e) { alert("Error: " + e.message); }
-    };
-    document.getElementById('adminStartDexBtn').onclick = async () => {
-        try { if(!confirm("⚠️ LAUNCH WARNING\n\nAre you sure you want to ENABLE DEX & START VESTING?\nThis cannot be undone.")) return; await ensureNetwork(); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.enableDex(); await tx.wait(); alert("DEX ENABLED! 🚀"); loadData(); } catch(e) { alert("Error: " + e.message); }
-    };
-    document.getElementById('setRateBtn').onclick = async () => {
-        const newRate = document.getElementById('newRateInput').value;
-        if(!newRate || newRate <= 0) return alert("Please enter a valid rate.");
+    // --- ADMIN ACTIONS (SMART LOCK LOGIC) ---
+    async function executeAdminTx(btnId, warningId, txPromise, isPauseAction = false) {
+        const btn = document.getElementById(btnId);
+        const warn = document.getElementById(warningId);
+        
+        // Bloquear el botón pulsado
+        btn.disabled = true;
+        
+        // Si es acción de pausa, bloquear ambos para evitar conflictos
+        if(isPauseAction) {
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('unpauseBtn').disabled = true;
+        }
+
+        if(warn) warn.style.display = 'block';
+
         try {
-            if(!confirm(`⚠️ CHANGE PRICE CHECK\n\nSet New Rate to: 1 LAX = ${newRate} APEPE?`)) return;
             await ensureNetwork();
-            const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
-            const tx = await preC.setRate(newRate);
+            const tx = await txPromise;
             await tx.wait();
-            alert(`PRICE UPDATED TO ${newRate}! 📈`);
-            loadData();
-        } catch(e) { alert("Error: " + e.message); }
+            alert("Action Confirmed! ✅");
+        } catch(e) {
+            alert("Error: " + e.message);
+        } finally {
+            // Reset visuales (loadData se encargará del estado real de los botones)
+            if(warn) warn.style.display = 'none';
+            if(!isPauseAction) btn.disabled = false; 
+            loadData(); 
+        }
+    }
+
+    document.getElementById('adminWithdrawBtn').onclick = () => {
+        if(!confirm("⚠️ Withdraw Funds?")) return;
+        const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
+        executeAdminTx('adminWithdrawBtn', 'warn-withdraw', preC.withdrawNativeFunds());
     };
-    
-    // NEW: PAUSE/UNPAUSE
-    document.getElementById('pauseBtn').onclick = async () => {
-        try {
-            if(!confirm("⚠️ PAUSE SALES?\n\nUsers will NOT be able to buy.")) return;
-            await ensureNetwork();
-            const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
-            const tx = await preC.setPaused(true);
-            await tx.wait();
-            alert("SALES PAUSED ⏸");
-        } catch(e) { alert("Error: " + e.message); }
+
+    document.getElementById('adminStartDexBtn').onclick = () => {
+        if(!confirm("⚠️ Launch DEX?")) return;
+        const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer);
+        executeAdminTx('adminStartDexBtn', 'warn-dex', stkC.enableDex());
     };
-    document.getElementById('unpauseBtn').onclick = async () => {
-        try {
-            if(!confirm("⚠️ UNPAUSE SALES?\n\nUsers will be able to buy again.")) return;
-            await ensureNetwork();
-            const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
-            const tx = await preC.setPaused(false);
-            await tx.wait();
-            alert("SALES LIVE AGAIN ▶");
-        } catch(e) { alert("Error: " + e.message); }
+
+    document.getElementById('setRateBtn').onclick = () => {
+        const val = document.getElementById('newRateInput').value;
+        if(!confirm("⚠️ Set Rate?")) return;
+        const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
+        executeAdminTx('setRateBtn', 'warn-rate', preC.setRate(val));
+    };
+
+    document.getElementById('pauseBtn').onclick = () => {
+        if(!confirm("⚠️ PAUSE SALES?")) return;
+        const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
+        executeAdminTx('pauseBtn', 'warn-pause', preC.pauseSale(), true);
+    };
+
+    document.getElementById('unpauseBtn').onclick = () => {
+        if(!confirm("⚠️ UNPAUSE SALES?")) return;
+        const preC = new ethers.Contract(PRESALE_ADDR, ABI, signer);
+        executeAdminTx('unpauseBtn', 'warn-pause', preC.unpauseSale(), true);
     };
 
     // --- STAKING ---
@@ -643,6 +673,26 @@
             const user = await signer.getAddress();
             const preC = new ethers.Contract(PRESALE_ADDR, ABI, provider);
             
+            // --- DETECTAR ESTADO PAUSA ---
+            try {
+                const isPaused = await preC.paused();
+                const pBtn = document.getElementById('pauseBtn');
+                const uBtn = document.getElementById('unpauseBtn');
+                
+                // Lógica de botones Pause/Unpause
+                if (isPaused) {
+                    pBtn.disabled = true; // Ya está pausado
+                    pBtn.style.opacity = "0.5";
+                    uBtn.disabled = false; // Se puede despausar
+                    uBtn.style.opacity = "1";
+                } else {
+                    pBtn.disabled = false; // Se puede pausar
+                    pBtn.style.opacity = "1";
+                    uBtn.disabled = true; // Ya está activo
+                    uBtn.style.opacity = "0.5";
+                }
+            } catch(e) {}
+
             try {
                 const rateBn = await preC.rate();
                 currentExchangeRate = rateBn.toNumber();
@@ -705,14 +755,30 @@
                 statusEl.innerText = "WAITING FOR LAUNCH..."; 
                 statusEl.style.color = "cyan";
                 blueMsg.style.display = 'block';
-                apyEl.innerText = "WAITING FOR LAUNCH...";
+                apyEl.innerText = "DYNAMIC HIGH YIELD"; // Default text for V41
                 apyEl.style.color = "cyan";
             } else { 
                 statusEl.innerText = "LIVE! REWARDS GENERATING ⚡"; 
                 statusEl.style.color = "#00ff00";
                 blueMsg.style.display = 'none';
-                apyEl.innerText = "DYNAMIC HIGH YIELD";
             }
+            
+            // Calculo APY Real
+            try {
+                const rRate = await stkC.rewardRate();
+                const tSupply = await stkC.totalSupply();
+                const rRateNum = parseFloat(ethers.utils.formatEther(rRate));
+                const tSupplyNum = parseFloat(ethers.utils.formatEther(tSupply));
+
+                if (tSupplyNum > 0 && rRateNum > 0) {
+                    const yearlyRewards = rRateNum * 31536000;
+                    const apy = (yearlyRewards / tSupplyNum) * 100;
+                    apyEl.innerText = apy.toLocaleString(undefined, {maximumFractionDigits: 0}) + "% APY";
+                    apyEl.style.color = "#00ff00";
+                } else {
+                    apyEl.innerText = "DYNAMIC HIGH YIELD";
+                }
+            } catch(e) { apyEl.innerText = "DYNAMIC HIGH YIELD"; }
 
             const rew = await stkC.earned(user);
             const rewVal = parseFloat(ethers.utils.formatUnits(rew, 18));
