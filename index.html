@@ -107,10 +107,27 @@
 
         .security-blue-box { display:none; background: rgba(0, 255, 255, 0.05); border: 1px solid var(--cyan); padding: 12px; margin: 15px 0; border-radius: 12px; font-size: 0.85em; color: var(--cyan); text-shadow: 0 0 5px rgba(0, 255, 255, 0.4); box-shadow: 0 0 10px rgba(0, 255, 255, 0.1); }
     
-        /* Progress */
-        .progress-container { width: 100%; background-color: #222; border-radius: 10px; margin: 15px 0; border: 1px solid #444; height: 28px; position: relative; overflow: hidden; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #b8860b, #FFD700, #00ff41); width: 0%; transition: width 0.8s ease-in-out; border-radius: 8px 0 0 8px; }
+        /* Progress Bar (Visual Fix) */
+        .progress-container { 
+            width: 100%; 
+            background-color: #111; /* Fondo oscuro de la "tubería" */
+            border-radius: 10px; 
+            margin: 15px 0; 
+            border: 1px solid #444; 
+            height: 28px; 
+            position: relative; 
+            overflow: hidden; 
+        }
+        .progress-bar { 
+            height: 100%; 
+            background: linear-gradient(90deg, #b8860b, #FFD700, #00ff41); /* Relleno visible */
+            width: 0%; 
+            transition: width 0.8s ease-in-out; 
+            border-radius: 8px 0 0 8px; 
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); /* Brillo para que destaque */
+        }
         .progress-text { position: absolute; width: 100%; text-align: center; top: 4px; font-size: 0.9em; color: #fff; font-weight: bold; text-shadow: 1px 1px 3px #000; z-index: 2; letter-spacing: 1px;}
+        
         .supply-info { margin-top: -10px; margin-bottom: 20px; font-size: 0.85em; color: #666; }
         .supply-gold { color: var(--gold); font-weight: bold; }
 
@@ -150,37 +167,38 @@
                 display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;
             }
 
+            /* FIX PISADO: Ancho maximo 1400px y gap 40px */
             body:not(.mobile-mode) .container {
-                max-width: 1400px; /* AUMENTADO PARA MAS ESPACIO */
+                max-width: 1400px;
                 width: 98%; 
                 height: auto;
                 display: grid; 
-                grid-template-columns: 350px 1fr 350px; /* Columnas fijas a los lados, flexible centro */
-                gap: 40px; /* GAP AUMENTADO PARA SEPARAR PANELES */
+                grid-template-columns: 350px 1fr 350px; 
+                gap: 40px; /* Separacion de seguridad */
                 padding: 30px; overflow: visible; 
                 background: transparent; box-shadow: none; border: none; backdrop-filter: none;
             }
 
-            /* HEADER CENTRADO EN PC */
+            /* HEADER CENTRADO EN PC (GRID DE 3) */
             body:not(.mobile-mode) .header-box {
                 grid-column: 1 / -1; 
                 display: grid;
-                grid-template-columns: 1fr auto 1fr; /* GRID DE 3 PARA CENTRADO PERFECTO */
+                grid-template-columns: 1fr auto 1fr; /* Izq | Centro (auto) | Der */
                 align-items: center;
                 margin-bottom: 20px; border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 15px;
             }
 
-            /* Izquierda (Vacio o spacer) */
+            /* Columna Izq vacia para equilibrar */
             body:not(.mobile-mode) .header-box::before { content: ""; display: block; }
 
-            /* Centro (Logo + Texto) */
+            /* Columna Centro (Logo+Texto) */
             body:not(.mobile-mode) .header-info-wrapper {
                 display: flex; justify-content: center; align-items: center;
             }
             body:not(.mobile-mode) .header-img { max-width: 60px; margin-bottom: 0; margin-right: 20px; }
             body:not(.mobile-mode) h2 { margin: 0; font-size: 2em; text-align: left; }
 
-            /* Derecha (Botones) */
+            /* Columna Derecha (Botones) */
             body:not(.mobile-mode) .pc-header-controls { 
                 width: auto; display: flex; gap: 15px; align-items: center; justify-content: flex-end; 
             }
@@ -191,7 +209,7 @@
 
             /* Columnas */
             body:not(.mobile-mode) .panel-left { grid-column: 1 / 2; }
-            body:not(.mobile-mode) .panel-center { grid-column: 2 / 3; min-width: 0; /* Prevenir desborde */ }
+            body:not(.mobile-mode) .panel-center { grid-column: 2 / 3; min-width: 0; }
             body:not(.mobile-mode) .panel-right { grid-column: 3 / 4; }
 
             /* Estilo Cards en PC (Restaurado a v23) */
@@ -434,9 +452,9 @@
     })();
 
     // --- CONTRACT ADDRESSES ---
-    const PRESALE_ADDR = "0x241D981d656808b30f2cC83242a307B6EF0A5e4f"; 
-    const STAKE_ADDR   = "0x60BAB44FbD5fC025497AA1cf7366F4A73e71f9dD"; 
-    const APEPE_ADDR   = "0xd1060183552A88455f037a58B2aC639C7966a214"; 
+    const PRESALE_ADDR = "0x241D981d656808b30f2cC83242a307B6EF0A5e4f"; // V3
+    const STAKE_ADDR   = "0x45a117ABe265623239a3c7A050EA7e8D7b040248"; // V3 FIXED (Direccion Nueva)
+    const APEPE_ADDR   = "0xd1060183552A88455f037a58B2aC639C7966a214"; // Token
     
     // --- CONFIGURACIÓN ---
     const INITIAL_SUPPLY = 3000000; 
@@ -482,6 +500,7 @@
         handleBuyInput("");
     };
 
+    // --- VIEW SWITCHING LOGIC ---
     function unlockDashboard() {
         document.getElementById('landing-view').classList.add('hidden');
         document.getElementById('dashboard-view').classList.remove('hidden');
@@ -599,6 +618,7 @@
             const user = await signer.getAddress();
             const preC = new ethers.Contract(PRESALE_ADDR, ABI, provider);
             
+            // --- DETECTAR PRECIO ---
             try {
                 const rateBn = await preC.rate();
                 currentExchangeRate = rateBn.toNumber();
@@ -623,7 +643,7 @@
             
             // FIX BARRA DE VENTA: Asegurar que 'sold' no sea negativo
             let sold = INITIAL_SUPPLY - left;
-            if (sold < 0) sold = 0; // Fix para que la barra no se rompa si hay tokens extra
+            if (sold < 0) sold = 0; 
             let laxRaised = sold / 20; 
 
             document.getElementById('laxRaised').innerText = laxRaised.toLocaleString(undefined, {maximumFractionDigits:2});
@@ -640,9 +660,8 @@
             
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, provider);
             
-            // --- TOTAL STAKED (FIXED) ---
+            // --- TOTAL STAKED (FIXED: USA totalSupply PARA VER STAKE REAL) ---
             try {
-                // USA totalSupply() -> Cuenta solo el principal stakeado por gente
                 const totalStakedBn = await stkC.totalSupply();
                 const totalStakedVal = parseFloat(ethers.utils.formatEther(totalStakedBn));
                 document.getElementById('totalStakedDisplay').innerText = totalStakedVal.toLocaleString(undefined, {maximumFractionDigits: 0}) + " APEPE";
@@ -668,11 +687,13 @@
                 statusEl.innerText = "LIVE! REWARDS GENERATING ⚡"; 
                 statusEl.style.color = "#00ff00";
                 blueMsg.style.display = 'none';
+                
                 try {
                     const rRate = await stkC.rewardRate();
                     const tSupply = await stkC.totalSupply();
                     const rRateNum = parseFloat(ethers.utils.formatEther(rRate));
                     const tSupplyNum = parseFloat(ethers.utils.formatEther(tSupply));
+
                     if (tSupplyNum > 0 && rRateNum > 0) {
                         const yearlyRewards = rRateNum * 31536000;
                         const apy = (yearlyRewards / tSupplyNum) * 100;
@@ -704,62 +725,6 @@
     document.getElementById('addTokenBtn').onclick = async () => { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: APEPE_ADDR, symbol: 'APEPE', decimals: 18 } }, }); };
     document.getElementById('addTokenBtnLanding').onclick = async () => { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: APEPE_ADDR, symbol: 'APEPE', decimals: 18 } }, }); };
     document.getElementById('connectBtn').onclick = connect;
-    
-    // Cargar feed en segundo plano
-    async function loadRecentBuys() {
-        try {
-            if (!provider) return; 
-            const preC = new ethers.Contract(PRESALE_ADDR, ABI, provider);
-            const feedDiv = document.getElementById('liveFeedList');
-            feedDiv.innerHTML = "<p style='text-align:center; opacity:0.6;'>Scanning blockchain (Deep Scan)... ⏳</p>";
-            
-            const latestBlock = await provider.getBlockNumber();
-            const BLOCK_RANGE = 50000; 
-            const fromBlock = Math.max(0, latestBlock - BLOCK_RANGE);
-            const filter = preC.filters.TokensPurchased();
-            const logs = await preC.queryFilter(filter, fromBlock, latestBlock);
-
-            if (logs.length === 0) {
-                feedDiv.innerHTML = "<p style='text-align:center; opacity:0.6;'>No recent activity detected.</p>";
-                document.getElementById('pagination').classList.add('hidden');
-                return;
-            }
-
-            allFeedLogs = logs.reverse();
-            currentPage = 1;
-            renderPage(currentPage);
-            document.getElementById('pagination').classList.remove('hidden');
-
-        } catch (e) { console.error("Feed Error:", e); document.getElementById('liveFeedList').innerHTML = "<p style='text-align:center; color:var(--red); opacity:0.7;'>Feed unavailable</p>"; }
-    }
-
-    function renderPage(page) {
-        const feedDiv = document.getElementById('liveFeedList');
-        feedDiv.innerHTML = "";
-        
-        const start = (page - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageLogs = allFeedLogs.slice(start, end);
-
-        pageLogs.forEach(log => {
-            const buyer = log.args.buyer;
-            const shortBuyer = buyer.substring(0, 6) + "..." + buyer.substring(38);
-            const laxAmt = parseFloat(ethers.utils.formatEther(log.args.nativeAmount)).toFixed(2);
-            const apepeAmt = parseFloat(ethers.utils.formatEther(log.args.tokenAmount)).toLocaleString(undefined, {maximumFractionDigits: 0});
-            const itemHtml = `
-                <div class="feed-item">
-                    <div><span style="font-size:1.2em;">🐸</span> Wallet <span class="feed-wallet">${shortBuyer}</span><span class="small-txt"><br>bought</span></div>
-                    <div class="feed-amounts"><span class="highlight">${apepeAmt} APEPE</span><br><span class="small-txt">for ${laxAmt} LAX</span></div>
-                </div>`;
-            feedDiv.innerHTML += itemHtml;
-        });
-
-        document.getElementById('pageIndicator').innerText = `Page ${page}`;
-        document.getElementById('prevPageBtn').disabled = (page === 1);
-        document.getElementById('nextPageBtn').disabled = (end >= allFeedLogs.length);
-    }
-
-    window.changePage = function(direction) { currentPage += direction; renderPage(currentPage); }
 </script>
 </body>
 </html>
