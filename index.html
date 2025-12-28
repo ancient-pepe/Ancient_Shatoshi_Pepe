@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APEPE - Pharaoh's Portal </title>
+    <title>APEPE - Ancient Portal </title>
     
     <link rel="icon" type="image/png" href="./favicon.png">
 
@@ -75,11 +75,15 @@
         .btn-small:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
         .security-blue-box { display:none; background: rgba(0, 255, 255, 0.05); border: 1px solid var(--cyan); padding: 12px; margin: 15px 0; border-radius: 12px; font-size: 0.85em; color: var(--cyan); text-shadow: 0 0 5px rgba(0, 255, 255, 0.4); box-shadow: 0 0 10px rgba(0, 255, 255, 0.1); }
     
-        .progress-container { width: 100%; background-color: #000; border-radius: 12px; margin: 15px 0; border: 2px solid #333; height: 28px; position: relative; overflow: hidden; }
+        .progress-container { width: 100%; background-color: #000; border-radius: 12px; margin: 15px 0 5px 0; border: 2px solid #333; height: 28px; position: relative; overflow: hidden; }
         .progress-bar { height: 100%; background: linear-gradient(90deg, #b8860b, #FFD700, #00ff41); width: 0%; transition: width 0.8s ease-in-out; border-radius: 10px 0 0 10px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
         .progress-text { position: absolute; width: 100%; text-align: center; top: 4px; font-size: 0.9em; color: #fff; font-weight: bold; text-shadow: 1px 1px 3px #000; z-index: 2; letter-spacing: 1px;}
-        .supply-info { margin-top: -10px; margin-bottom: 20px; font-size: 0.85em; color: #666; }
+        .supply-info { margin-top: 5px; margin-bottom: 20px; font-size: 0.85em; color: #666; }
         .supply-gold { color: var(--gold); font-weight: bold; }
+
+        /* Mensaje de pánico en la barra */
+        .panic-msg { color: var(--red); font-size: 0.8em; font-weight: bold; text-transform: uppercase; animation: blink 1.5s infinite; margin-bottom: 15px; display: none; }
+        @keyframes blink { 0% { opacity: 0.7; } 50% { opacity: 1; text-shadow: 0 0 10px red; } 100% { opacity: 0.7; } }
 
         .feed-container { text-align: left; margin-top: 15px; padding-right: 5px; min-height: 200px; max-height: 300px; overflow-y: auto; }
         .feed-item { padding: 10px 0; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; animation: fadeIn 0.5s ease-out; }
@@ -201,9 +205,9 @@
                     <div id="price-alert">
                         <p class="small-txt" style="margin:0; color: #aaa;">CURRENT PRICE PHASE:</p>
                         <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 5px;">
-                            <div style="text-decoration: line-through; color: #666; font-size: 0.9em;">1 LAX = 20 APEPE</div>
+                            <div style="text-decoration: line-through; color: #666; font-size: 0.9em;">1 LAX = 20 $APEPE</div>
                             <div style="color: #fff;">➝</div>
-                            <div class="highlight" style="font-size: 1.1em; color: var(--green);">1 LAX = <span id="currentRateDisplay">20</span> APEPE</div>
+                            <div class="highlight" style="font-size: 1.1em; color: var(--green);">1 LAX = <span id="currentRateDisplay">20</span> $APEPE</div>
                         </div>
                         <div style="background: var(--red); color: white; font-size: 0.7em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; font-weight: bold;">
                             📈 PRICE INCREASED <span id="percentIncrease">0</span>%
@@ -260,7 +264,7 @@
                 
                 <hr style="border-color: #500; margin: 10px 0;">
                 
-                <p class="small-txt" style="color:#f88;">⚙️ CHANGE RATE (APEPE/LAX)</p>
+                <p class="small-txt" style="color:#f88;">⚙️ CHANGE RATE ($APEPE/LAX)</p>
                 <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
                     <input type="number" id="newRateInput" placeholder="Ex: 20" style="font-size:0.9em; padding:8px; width: 60%;">
                     <button id="setRateBtn" class="btn-admin" style="width: auto; padding: 8px 15px;">SET RATE</button>
@@ -273,8 +277,10 @@
                 <div id="progressText" class="progress-text">0.00% SOLD</div>
             </div>
             
+            <div id="panicMessage" class="panic-msg">⚠️ WARNING: At 40% sold, price INCREASES (Rate drops to 16)!</div>
+            
             <div class="supply-info">
-                TOTAL SUPPLY: <span class="supply-gold">21,000,000 APEPE</span><br>
+                TOTAL SUPPLY: <span class="supply-gold">21,000,000 $APEPE</span><br>
                 (3M en Preventa | 50% Liquidez Bloqueada)
             </div>
 
@@ -284,7 +290,7 @@
                     <span id="laxRaised" class="stat-val">Loading...</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-label">APEPE SOLD</span>
+                    <span class="stat-label">$APEPE SOLD</span>
                     <span id="tokensSold" class="stat-val">Loading...</span>
                 </div>
             </div>
@@ -671,6 +677,18 @@
             if (sold > 0 && percent < 0.01) displayPercent = "< 0.01";
             document.getElementById('progressBar').style.width = Math.max(percent, 1) + "%"; 
             document.getElementById('progressText').innerText = displayPercent + "% SOLD";
+            
+            // --- MENSAJES DE PÁNICO (NUEVO) ---
+            const panicDiv = document.getElementById('panicMessage');
+            if(percent < 40) {
+                panicDiv.style.display = 'block';
+                panicDiv.innerText = "⚠️ WARNING: At 40% sold, price INCREASES (Rate drops to 16)!";
+            } else if (percent >= 40 && percent < 80) {
+                panicDiv.style.display = 'block';
+                panicDiv.innerText = "🔥 HURRY! Next Price Increase at 80% (Rate drops to 14)!";
+            } else {
+                panicDiv.style.display = 'none';
+            }
 
             const rawAsp = await aspC.balanceOf(user);
             document.getElementById('userAspBal').innerText = parseFloat(ethers.utils.formatEther(rawAsp)).toFixed(4);
@@ -681,9 +699,9 @@
             try {
                 const totalStakedBn = await stkC.totalSupply();
                 const totalStakedVal = parseFloat(ethers.utils.formatEther(totalStakedBn));
-                document.getElementById('totalStakedDisplay').innerText = totalStakedVal.toLocaleString(undefined, {maximumFractionDigits: 0}) + " APEPE";
+                document.getElementById('totalStakedDisplay').innerText = totalStakedVal.toLocaleString(undefined, {maximumFractionDigits: 0}) + " $APEPE";
             } catch(e) {
-                document.getElementById('totalStakedDisplay').innerText = "0 APEPE";
+                document.getElementById('totalStakedDisplay').innerText = "0 $APEPE";
             }
 
             // --- ESTADO DEX Y APY ---
@@ -728,7 +746,7 @@
             document.getElementById('myRewardsBig').innerText = rewVal.toFixed(4);
 
             const restakeBtn = document.getElementById('restakeBtn');
-            if(rewVal >= 20) { restakeBtn.disabled = false; restakeBtn.classList.remove('btn-disabled'); restakeBtn.classList.add('btn-green'); restakeBtn.innerText = "♻️ COMPOUND REWARDS (RESTAKE)"; } else { restakeBtn.disabled = true; restakeBtn.classList.add('btn-disabled'); restakeBtn.classList.remove('btn-green'); restakeBtn.innerText = "♻️ COMPOUND (MIN 20 APEPE)"; }
+            if(rewVal >= 20) { restakeBtn.disabled = false; restakeBtn.classList.remove('btn-disabled'); restakeBtn.classList.add('btn-green'); restakeBtn.innerText = "♻️ COMPOUND REWARDS (RESTAKE)"; } else { restakeBtn.disabled = true; restakeBtn.classList.add('btn-disabled'); restakeBtn.classList.remove('btn-green'); restakeBtn.innerText = "♻️ COMPOUND (MIN 20 $APEPE)"; }
 
             const claimBtn = document.getElementById('claimBtn'); const unstakeBtn = document.getElementById('unstakeBtn'); const unstakeMsg = document.getElementById('unstake-msg');
             try { const isPenalty = await stkC.isPenaltyActive(); if(isPenalty) { claimBtn.disabled = true; claimBtn.classList.add('btn-disabled'); claimBtn.classList.remove('btn-gold'); claimBtn.innerText = "🔒 CLAIM LOCKED (VESTING)"; unstakeBtn.innerText = "⚠️ UNSTAKE (YOU LOSE REWARDS)"; unstakeMsg.innerText = "*Early exit forfeits ALL profits."; } else { if(rewVal > 0) { claimBtn.disabled = false; claimBtn.classList.remove('btn-disabled'); claimBtn.classList.add('btn-gold'); claimBtn.innerText = "💰 CLAIM REWARDS TO WALLET"; } else { claimBtn.innerText = "💰 CLAIM (NO REWARDS)"; } unstakeBtn.innerText = "🔓 UNSTAKE PRINCIPAL"; unstakeMsg.innerText = "*You can withdraw safely."; } } catch(e) {}
@@ -788,7 +806,7 @@
             const itemHtml = `
                 <div class="feed-item">
                     <div><span style="font-size:1.2em;">🐸</span> Wallet <span class="feed-wallet">${shortBuyer}</span><span class="small-txt"><br>bought</span></div>
-                    <div class="feed-amounts"><span class="highlight">${apepeAmt} APEPE</span><br><span class="small-txt">for ${laxAmt} LAX</span></div>
+                    <div class="feed-amounts"><span class="highlight">${apepeAmt} $APEPE</span><br><span class="small-txt">for ${laxAmt} LAX</span></div>
                 </div>`;
             feedDiv.innerHTML += itemHtml;
         });
