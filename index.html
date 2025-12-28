@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APEPE - Pharaoh's Portal v26</title>
+    <title>APEPE - Pharaoh's Portal v27</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- ESTILOS BASE (MÓVIL / DEFAULT) --- */
+        /* --- ESTILOS BASE --- */
         :root { 
             --gold: #FFD700; --gold-dim: #b8860b; --bg: #050505; --green: #00ff41; --gray: #888; --alert: #ffcc00; --red: #ff3333; --admin: #ff0000; --cyan: #00ffff;
         }
@@ -22,7 +22,6 @@
             overflow-x: hidden;
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
@@ -37,19 +36,15 @@
             animation: fadeIn 1s ease-out;
             position: relative;
         }
-
         @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
 
-        /* HEADER SECTION */
         .header-box { width: 100%; margin-bottom: 25px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: transparent; }
         .header-img { max-width: 100%; height: auto; display: block; border-radius: 12px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); margin-bottom: 10px; }
-        
         .pc-header-controls { width: 100%; }
 
-        /* SOCIAL LINKS (Mobile) */
+        /* SOCIAL LINKS */
         .social-box-mobile { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; width: 100%; }
         .social-box-pc { display: none; }
-        
         .social-link { 
             display: flex; align-items: center; justify-content: center; gap: 10px;
             color: #ccc; text-decoration: none; font-size: 0.9em; padding: 8px;
@@ -57,11 +52,7 @@
         }
         .social-link:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
 
-        button { 
-            border: none; padding: 16px; font-weight: 700; cursor: pointer; border-radius: 8px; margin: 12px 0; width: 100%; 
-            text-transform: uppercase; transition: 0.3s; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; font-size: 1.1em;
-        }
-        
+        button { border: none; padding: 16px; font-weight: 700; cursor: pointer; border-radius: 8px; margin: 12px 0; width: 100%; text-transform: uppercase; transition: 0.3s; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; font-size: 1.1em; }
         .btn-gold { background: linear-gradient(45deg, var(--gold-dim), var(--gold)); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5); }
         .btn-green { background: linear-gradient(45deg, #004d00, #00cc00); color: #fff; box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2); }
@@ -73,13 +64,8 @@
         .btn-disabled { background: #222 !important; color: #555 !important; border: 1px solid #333 !important; cursor: not-allowed !important; }
 
         .card { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 25px; padding-top: 20px; position: relative; }
-        
-        input { 
-            width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #444; background: rgba(0,0,0,0.5); 
-            color: #fff; text-align: center; font-size: 1.4em; margin: 10px 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; transition: 0.3s;
-        }
+        input { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #444; background: rgba(0,0,0,0.5); color: #fff; text-align: center; font-size: 1.4em; margin: 10px 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; transition: 0.3s; }
         input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
-        
         .highlight { color: var(--green); font-weight: bold; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
         .hidden { display: none !important; }
         .small-txt { font-size: 0.85em; color: #aaa; letter-spacing: 0.5px; }
@@ -93,41 +79,50 @@
 
         /* Admin */
         .admin-panel { border: 2px solid var(--admin); background: rgba(50, 0, 0, 0.5); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
-        .btn-admin { background: var(--admin); color: #fff; font-size: 0.8em; margin: 5px 0; transition: 0.2s; cursor: pointer; border: 1px solid #500; }
+        
+        /* FIX BOTONES DEV: Hover forzado */
+        .btn-admin { 
+            background: var(--admin); color: #fff; font-size: 0.8em; margin: 5px 0; 
+            transition: all 0.2s ease-in-out; cursor: pointer; border: 1px solid #500; 
+            position: relative; z-index: 10; /* Asegura que esté por encima */
+        }
+        .btn-admin:hover { 
+            background: #ff0000 !important; 
+            border-color: #fff !important;
+            transform: scale(1.05); 
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8) !important; 
+        }
         
         .warning-box { background: rgba(255, 204, 0, 0.05); border: 1px solid var(--alert); color: var(--alert); padding: 10px; font-size: 0.8em; border-radius: 8px; margin-top: 15px; }
         .balance-info { display: flex; justify-content: space-between; font-size: 0.9em; width: 100%; margin: 5px auto 0; color: #ccc; }
         .live-dot { height: 8px; width: 8px; background-color: #444; border-radius: 50%; display: inline-block; margin-left: 5px; }
         .live-on { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
         .status-msg { font-size: 0.85em; color: var(--green); margin: 10px 0; font-weight: bold; line-height: 1.4; text-shadow: 0 0 5px rgba(0, 255, 0, 0.3); }
-
         .extra-links { display: flex; gap: 10px; justify-content: center; margin-top: 30px; margin-bottom: 20px; }
         .btn-small { font-size: 0.8em; padding: 10px 15px; width: auto; border: 1px solid var(--gold-dim); background: rgba(0,0,0,0.5); color: #ccc; }
         .btn-small:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
-
         .security-blue-box { display:none; background: rgba(0, 255, 255, 0.05); border: 1px solid var(--cyan); padding: 12px; margin: 15px 0; border-radius: 12px; font-size: 0.85em; color: var(--cyan); text-shadow: 0 0 5px rgba(0, 255, 255, 0.4); box-shadow: 0 0 10px rgba(0, 255, 255, 0.1); }
     
-        /* Progress Bar (Visual Fix) */
+        /* --- PROGRESS BAR REDISEÑADA --- */
         .progress-container { 
             width: 100%; 
-            background-color: #111; /* Fondo oscuro de la "tubería" */
-            border-radius: 10px; 
+            background-color: #000; /* Fondo más oscuro */
+            border-radius: 12px; 
             margin: 15px 0; 
-            border: 1px solid #444; 
+            border: 2px solid #333; /* Borde más visible para delimitar */
             height: 28px; 
             position: relative; 
             overflow: hidden; 
         }
         .progress-bar { 
             height: 100%; 
-            background: linear-gradient(90deg, #b8860b, #FFD700, #00ff41); /* Relleno visible */
+            background: linear-gradient(90deg, #b8860b, #FFD700, #00ff41); 
             width: 0%; 
             transition: width 0.8s ease-in-out; 
-            border-radius: 8px 0 0 8px; 
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); /* Brillo para que destaque */
+            border-radius: 10px 0 0 10px; 
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); 
         }
         .progress-text { position: absolute; width: 100%; text-align: center; top: 4px; font-size: 0.9em; color: #fff; font-weight: bold; text-shadow: 1px 1px 3px #000; z-index: 2; letter-spacing: 1px;}
-        
         .supply-info { margin-top: -10px; margin-bottom: 20px; font-size: 0.85em; color: #666; }
         .supply-gold { color: var(--gold); font-weight: bold; }
 
@@ -136,7 +131,6 @@
         .feed-item { padding: 10px 0; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; animation: fadeIn 0.5s ease-out; }
         .feed-wallet { color: var(--gold); font-weight: bold; font-family: 'Rajdhani', sans-serif; }
         .feed-amounts { text-align: right; line-height: 1.2; }
-        
         .pagination-ctrl { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
         .page-btn { background: transparent; border: 1px solid #444; color: #888; padding: 5px 10px; font-size: 0.75em; cursor: pointer; border-radius: 4px; }
         .page-btn:hover { border-color: var(--gold); color: var(--gold); }
@@ -167,61 +161,44 @@
                 display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;
             }
 
-            /* FIX PISADO: Ancho maximo 1400px y gap 40px */
             body:not(.mobile-mode) .container {
-                max-width: 1400px;
-                width: 98%; 
-                height: auto;
+                max-width: 1400px; width: 98%; height: auto;
                 display: grid; 
                 grid-template-columns: 350px 1fr 350px; 
-                gap: 40px; /* Separacion de seguridad */
-                padding: 30px; overflow: visible; 
+                gap: 40px; padding: 30px; overflow: visible; 
                 background: transparent; box-shadow: none; border: none; backdrop-filter: none;
             }
 
-            /* HEADER CENTRADO EN PC (GRID DE 3) */
             body:not(.mobile-mode) .header-box {
-                grid-column: 1 / -1; 
-                display: grid;
-                grid-template-columns: 1fr auto 1fr; /* Izq | Centro (auto) | Der */
-                align-items: center;
-                margin-bottom: 20px; border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 15px;
+                grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto 1fr; 
+                align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 15px;
             }
-
-            /* Columna Izq vacia para equilibrar */
             body:not(.mobile-mode) .header-box::before { content: ""; display: block; }
 
-            /* Columna Centro (Logo+Texto) */
-            body:not(.mobile-mode) .header-info-wrapper {
-                display: flex; justify-content: center; align-items: center;
-            }
+            body:not(.mobile-mode) .header-info-wrapper { display: flex; justify-content: center; align-items: center; }
             body:not(.mobile-mode) .header-img { max-width: 60px; margin-bottom: 0; margin-right: 20px; }
             body:not(.mobile-mode) h2 { margin: 0; font-size: 2em; text-align: left; }
 
-            /* Columna Derecha (Botones) */
-            body:not(.mobile-mode) .pc-header-controls { 
-                width: auto; display: flex; gap: 15px; align-items: center; justify-content: flex-end; 
-            }
-            
+            body:not(.mobile-mode) .pc-header-controls { width: auto; display: flex; gap: 15px; align-items: center; justify-content: flex-end; }
             body:not(.mobile-mode) #connectBtn { width: auto; margin: 0; padding: 10px 25px; font-size: 0.9em; }
             body:not(.mobile-mode) #addTokenBtn { width: auto; margin: 0; display: inline-block; }
             body:not(.mobile-mode) #walletAddress { position: absolute; top: 95px; right: 30px; text-align: right; }
 
-            /* Columnas */
-            body:not(.mobile-mode) .panel-left { grid-column: 1 / 2; }
+            /* MAPPING DE COLUMNAS (GRID) */
+            /* Panel Central (Compra) al centro (Col 2) */
             body:not(.mobile-mode) .panel-center { grid-column: 2 / 3; min-width: 0; }
+            /* Panel Izquierdo (Stats) a la izq (Col 1) */
+            body:not(.mobile-mode) .panel-left { grid-column: 1 / 2; }
+            /* Panel Derecho (Vault) a la der (Col 3) */
             body:not(.mobile-mode) .panel-right { grid-column: 3 / 4; }
 
-            /* Estilo Cards en PC (Restaurado a v23) */
-            body:not(.mobile-mode) .card, 
-            body:not(.mobile-mode) .panel-left > div {
+            /* Estilo Cards PC */
+            body:not(.mobile-mode) .card, body:not(.mobile-mode) .panel-left > div {
                 margin-top: 10px; margin-bottom: 20px;
-                background: rgba(10, 10, 10, 0.6); 
-                backdrop-filter: blur(10px);
+                background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(10px);
                 padding: 20px; border-radius: 15px; border: 1px solid var(--gold-dim);
                 box-shadow: 0 0 20px rgba(0,0,0,0.5);
             }
-            
             body:not(.mobile-mode) .feed-container { max-height: 300px; }
             body:not(.mobile-mode) .social-box-mobile { display: none; }
             body:not(.mobile-mode) .social-box-pc { display: flex; flex-direction: column; gap: 10px; margin-top: 20px;}
@@ -269,6 +246,51 @@
         </div>
         
         <div id="walletAddress" class="small-txt" style="margin-top: 5px; margin-bottom:15px;">Reading Wallet...</div>
+
+        <div class="panel-center">
+            <div class="card">
+                <h3>🚀 EXCLUSIVE PRE-SALE</h3>
+                <div id="buy-section">
+                    <div class="balance-info">
+                        <span>Wallet Balance:</span>
+                        <span class="highlight"><span id="userLaxBal">0.00</span> $LAX</span>
+                    </div>
+                    <input type="number" id="laxInput" placeholder="Min: 1 $LAX">
+                    <p id="minError" class="error-txt">⚠️ MINIMUM 1 LAX TO BUY</p>
+                    
+                    <div id="price-alert">
+                        <p class="small-txt" style="margin:0; color: #aaa;">CURRENT PRICE PHASE:</p>
+                        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 5px;">
+                            <div style="text-decoration: line-through; color: #666; font-size: 0.9em;">1 LAX = 20 APEPE</div>
+                            <div style="color: #fff;">➝</div>
+                            <div class="highlight" style="font-size: 1.1em; color: var(--green);">1 LAX = <span id="currentRateDisplay">20</span> APEPE</div>
+                        </div>
+                        <div style="background: var(--red); color: white; font-size: 0.7em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; font-weight: bold;">
+                            📈 PRICE INCREASED <span id="percentIncrease">0</span>%
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                        <span class="small-txt">Recieve:</span>
+                        <span class="small-txt">Cost:</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size: 1.1em; font-weight:bold;">
+                        <span class="highlight"><span id="aspPreview">0</span> $APEPE</span>
+                        <span style="color:#fff;"><span id="usdCost">0.00</span> USD</span>
+                    </div>
+                    <button id="buyBtn" class="btn-green" style="margin-top: 20px;">PURCHASE $APEPE NOW</button>
+                </div>
+                <div id="pre-loading" class="hidden">
+                    <button class="btn-disabled">PROCESSING... ⏳</button>
+                    <p class="status-msg">Confirming on blockchain...<br>Please wait.</p>
+                </div>
+            </div>
+            
+            <div class="social-box-pc">
+                <a href="https://x.com/Ancientsatpepe" target="_blank" class="social-link">✖️ @Ancientsatpepe</a>
+                <a href="https://x.com/prlxchain" target="_blank" class="social-link">✖️ @prlxchain</a>
+            </div>
+        </div>
 
         <div class="panel-left">
             <div id="adminPanel" class="admin-panel">
@@ -328,51 +350,6 @@
             </div>
         </div>
 
-        <div class="panel-center">
-            <div class="card">
-                <h3>🚀 EXCLUSIVE PRE-SALE</h3>
-                <div id="buy-section">
-                    <div class="balance-info">
-                        <span>Wallet Balance:</span>
-                        <span class="highlight"><span id="userLaxBal">0.00</span> $LAX</span>
-                    </div>
-                    <input type="number" id="laxInput" placeholder="Min: 1 $LAX">
-                    <p id="minError" class="error-txt">⚠️ MINIMUM 1 LAX TO BUY</p>
-                    
-                    <div id="price-alert">
-                        <p class="small-txt" style="margin:0; color: #aaa;">CURRENT PRICE PHASE:</p>
-                        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 5px;">
-                            <div style="text-decoration: line-through; color: #666; font-size: 0.9em;">1 LAX = 20 APEPE</div>
-                            <div style="color: #fff;">➝</div>
-                            <div class="highlight" style="font-size: 1.1em; color: var(--green);">1 LAX = <span id="currentRateDisplay">20</span> APEPE</div>
-                        </div>
-                        <div style="background: var(--red); color: white; font-size: 0.7em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; font-weight: bold;">
-                            📈 PRICE INCREASED <span id="percentIncrease">0</span>%
-                        </div>
-                    </div>
-
-                    <div style="display:flex; justify-content:space-between; margin-top:10px;">
-                        <span class="small-txt">Recieve:</span>
-                        <span class="small-txt">Cost:</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size: 1.1em; font-weight:bold;">
-                        <span class="highlight"><span id="aspPreview">0</span> $APEPE</span>
-                        <span style="color:#fff;"><span id="usdCost">0.00</span> USD</span>
-                    </div>
-                    <button id="buyBtn" class="btn-green" style="margin-top: 20px;">PURCHASE $APEPE NOW</button>
-                </div>
-                <div id="pre-loading" class="hidden">
-                    <button class="btn-disabled">PROCESSING... ⏳</button>
-                    <p class="status-msg">Confirming on blockchain...<br>Please wait.</p>
-                </div>
-            </div>
-            
-            <div class="social-box-pc">
-                <a href="https://x.com/Ancientsatpepe" target="_blank" class="social-link">✖️ @Ancientsatpepe</a>
-                <a href="https://x.com/prlxchain" target="_blank" class="social-link">✖️ @prlxchain</a>
-            </div>
-        </div>
-
         <div class="panel-right">
             <div class="card">
                 <h3>🔒 ANCIENT VAULT (V4)</h3>
@@ -418,10 +395,14 @@
                     </div>
                     <input type="number" id="stakeInput" placeholder="Amount of $APEPE">
                     <button id="stakeBtn" class="btn-green">STAKE $APEPE</button>
+                    
                     <button id="unstakeBtn" class="btn-red" style="margin-top:15px; border-color:#555; background: #222;">🔓 UNSTAKE & EXIT</button>
                     <p id="unstake-msg" class="small-txt" style="margin-top:5px; font-size:0.7em;">*You can always withdraw your principal.</p>
+                    
                     <div class="warning-box">
-                        ⚠️ <b>IMPORTANT:</b> Rewards are vested for <b>6 MONTHS</b> after DEX Launch.<br>Exit early = <b>LOSE REWARDS</b>.
+                        ⚠️ <b>IMPORTANT:</b> Rewards are vested for <b>6 MONTHS</b> after DEX Launch. 
+                        <br>Exit early = <b>LOSE REWARDS</b>.
+                        <br>Compound = <b>KEEP REWARDS</b>.
                     </div>
                 </div>
                 
@@ -429,6 +410,7 @@
                     <button id="restakeBtn" class="btn-disabled" style="margin-top:20px; font-size: 0.9em;" disabled>♻️ NO REWARDS TO COMPOUND</button>
                     <button id="claimBtn" class="btn-disabled" style="margin-top:10px; font-size: 0.9em;" disabled>🔒 CLAIM LOCKED (VESTING)</button>
                 </div>
+
                 <div id="restake-loading" class="hidden" style="margin-top:20px;">
                     <button class="btn-disabled">PROCESSING... ⏳</button>
                     <p class="status-msg">Confirming on blockchain...</p>
@@ -443,7 +425,6 @@
     (function() {
         const userAgent = navigator.userAgent.toLowerCase();
         const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-        
         if (window.ethereum && window.ethereum.isMetaMask && isMobile) {
             document.body.classList.add('mobile-mode');
         } else if (isMobile) {
@@ -453,7 +434,7 @@
 
     // --- CONTRACT ADDRESSES ---
     const PRESALE_ADDR = "0x241D981d656808b30f2cC83242a307B6EF0A5e4f"; // V3
-    const STAKE_ADDR   = "0x45a117ABe265623239a3c7A050EA7e8D7b040248"; // V3 FIXED (Direccion Nueva)
+    const STAKE_ADDR   = "0x45a117ABe265623239a3c7A050EA7e8D7b040248"; // V3 FIXED (0x45...)
     const APEPE_ADDR   = "0xd1060183552A88455f037a58B2aC639C7966a214"; // Token
     
     // --- CONFIGURACIÓN ---
@@ -500,7 +481,6 @@
         handleBuyInput("");
     };
 
-    // --- VIEW SWITCHING LOGIC ---
     function unlockDashboard() {
         document.getElementById('landing-view').classList.add('hidden');
         document.getElementById('dashboard-view').classList.remove('hidden');
@@ -618,7 +598,6 @@
             const user = await signer.getAddress();
             const preC = new ethers.Contract(PRESALE_ADDR, ABI, provider);
             
-            // --- DETECTAR PRECIO ---
             try {
                 const rateBn = await preC.rate();
                 currentExchangeRate = rateBn.toNumber();
@@ -641,7 +620,7 @@
             const left = parseFloat(ethers.utils.formatEther(contractAspBal));
             const effectiveTotal = Math.max(INITIAL_SUPPLY, left);
             
-            // FIX BARRA DE VENTA: Asegurar que 'sold' no sea negativo
+            // FIX BARRA DE VENTA:
             let sold = INITIAL_SUPPLY - left;
             if (sold < 0) sold = 0; 
             let laxRaised = sold / 20; 
@@ -660,7 +639,7 @@
             
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, provider);
             
-            // --- TOTAL STAKED (FIXED: USA totalSupply PARA VER STAKE REAL) ---
+            // --- TOTAL STAKED (FIXED) ---
             try {
                 const totalStakedBn = await stkC.totalSupply();
                 const totalStakedVal = parseFloat(ethers.utils.formatEther(totalStakedBn));
@@ -687,13 +666,11 @@
                 statusEl.innerText = "LIVE! REWARDS GENERATING ⚡"; 
                 statusEl.style.color = "#00ff00";
                 blueMsg.style.display = 'none';
-                
                 try {
                     const rRate = await stkC.rewardRate();
                     const tSupply = await stkC.totalSupply();
                     const rRateNum = parseFloat(ethers.utils.formatEther(rRate));
                     const tSupplyNum = parseFloat(ethers.utils.formatEther(tSupply));
-
                     if (tSupplyNum > 0 && rRateNum > 0) {
                         const yearlyRewards = rRateNum * 31536000;
                         const apy = (yearlyRewards / tSupplyNum) * 100;
@@ -725,6 +702,61 @@
     document.getElementById('addTokenBtn').onclick = async () => { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: APEPE_ADDR, symbol: 'APEPE', decimals: 18 } }, }); };
     document.getElementById('addTokenBtnLanding').onclick = async () => { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: APEPE_ADDR, symbol: 'APEPE', decimals: 18 } }, }); };
     document.getElementById('connectBtn').onclick = connect;
+    
+    async function loadRecentBuys() {
+        try {
+            if (!provider) return; 
+            const preC = new ethers.Contract(PRESALE_ADDR, ABI, provider);
+            const feedDiv = document.getElementById('liveFeedList');
+            feedDiv.innerHTML = "<p style='text-align:center; opacity:0.6;'>Scanning blockchain (Deep Scan)... ⏳</p>";
+            
+            const latestBlock = await provider.getBlockNumber();
+            const BLOCK_RANGE = 50000; 
+            const fromBlock = Math.max(0, latestBlock - BLOCK_RANGE);
+            const filter = preC.filters.TokensPurchased();
+            const logs = await preC.queryFilter(filter, fromBlock, latestBlock);
+
+            if (logs.length === 0) {
+                feedDiv.innerHTML = "<p style='text-align:center; opacity:0.6;'>No recent activity detected.</p>";
+                document.getElementById('pagination').classList.add('hidden');
+                return;
+            }
+
+            allFeedLogs = logs.reverse();
+            currentPage = 1;
+            renderPage(currentPage);
+            document.getElementById('pagination').classList.remove('hidden');
+
+        } catch (e) { console.error("Feed Error:", e); document.getElementById('liveFeedList').innerHTML = "<p style='text-align:center; color:var(--red); opacity:0.7;'>Feed unavailable</p>"; }
+    }
+
+    function renderPage(page) {
+        const feedDiv = document.getElementById('liveFeedList');
+        feedDiv.innerHTML = "";
+        
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageLogs = allFeedLogs.slice(start, end);
+
+        pageLogs.forEach(log => {
+            const buyer = log.args.buyer;
+            const shortBuyer = buyer.substring(0, 6) + "..." + buyer.substring(38);
+            const laxAmt = parseFloat(ethers.utils.formatEther(log.args.nativeAmount)).toFixed(2);
+            const apepeAmt = parseFloat(ethers.utils.formatEther(log.args.tokenAmount)).toLocaleString(undefined, {maximumFractionDigits: 0});
+            const itemHtml = `
+                <div class="feed-item">
+                    <div><span style="font-size:1.2em;">🐸</span> Wallet <span class="feed-wallet">${shortBuyer}</span><span class="small-txt"><br>bought</span></div>
+                    <div class="feed-amounts"><span class="highlight">${apepeAmt} APEPE</span><br><span class="small-txt">for ${laxAmt} LAX</span></div>
+                </div>`;
+            feedDiv.innerHTML += itemHtml;
+        });
+
+        document.getElementById('pageIndicator').innerText = `Page ${page}`;
+        document.getElementById('prevPageBtn').disabled = (page === 1);
+        document.getElementById('nextPageBtn').disabled = (end >= allFeedLogs.length);
+    }
+
+    window.changePage = function(direction) { currentPage += direction; renderPage(currentPage); }
 </script>
 </body>
 </html>
