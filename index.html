@@ -274,6 +274,7 @@
                         <span style="color:#fff;"><span id="usdCost">0.00</span> USD</span>
                     </div>
                     <button id="buyBtn" class="btn-green" style="margin-top: 20px;">PURCHASE $APEPE NOW</button>
+                    <p id="buy-warning" class="red-warning-small">Confirmation depends on block confirmation on the network, which can take up to 30 minutes in the worst case.</p>
                 </div>
                 <div id="pre-loading" class="hidden">
                     <button class="btn-disabled">PROCESSING... ⏳</button>
@@ -300,14 +301,6 @@
                 <button id="adminWithdrawBtn" class="btn-admin">💰 RETIRAR FONDOS (LAX)</button>
                 <button id="adminStartDexBtn" class="btn-admin">🚀 ENABLE DEX & VESTING</button>
                 
-                <hr style="border-color: #500; margin: 10px 0;">
-                
-                <p class="small-txt" style="color:#f88;">⚙️ SET $LAX PRICE (USD)</p>
-                <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
-                    <input type="number" id="laxPriceInput" placeholder="Ex: 0.10" style="font-size:0.9em; padding:8px; width: 60%;" step="0.01">
-                    <button id="updateLaxPriceBtn" class="btn-admin" style="width: auto; padding: 8px 15px;">UPDATE</button>
-                </div>
-
                 <hr style="border-color: #500; margin: 10px 0;">
                 
                 <p class="small-txt" style="color:#f88;">⚙️ CHANGE RATE (APEPE/LAX)</p>
@@ -386,6 +379,7 @@
                 <div id="stk-step1">
                     <p class="small-txt">Enable $APEPE to start staking.</p>
                     <button id="stk-approveBtn" class="btn-white">ENABLE $APEPE</button>
+                    <p id="warn-enable" class="red-warning-small">Confirmation depends on block confirmation on the network, which can take up to 30 minutes in the worst case.</p>
                 </div>
                 <div id="stk-loading" class="hidden">
                     <button class="btn-disabled">PROCESSING... ⏳</button>
@@ -443,14 +437,12 @@
     const STAKE_ADDR   = "0x45a117ABe265623239a3c7A050EA7e8D7b040248"; // V3 FIXED
     const APEPE_ADDR   = "0xd1060183552A88455f037a58B2aC639C7966a214"; // Token
     
-    // --- CONFIGURACIÓN ---
+    // --- CONFIGURACIÓN API & OWNER ---
     const INITIAL_SUPPLY = 3000000; 
     const OWNER_ADDRESS = "0x57DB4E4B824937d641D05Cd355027e85E2Fb4958"; 
+    const NONKYC_KEY = "384f9ffc81ab61bcd0d43d69fbf6517f"; // READ-ONLY KEY
     
-    // Recuperar precio LAX guardado o usar 0.07 por defecto
-    let savedLaxPrice = localStorage.getItem('laxPriceUsd');
-    let laxPriceUsd = savedLaxPrice ? parseFloat(savedLaxPrice) : 0.07; 
-
+    let laxPriceUsd = 0.07; // Default fallback
     let currentExchangeRate = 20; 
     let allFeedLogs = []; 
     let currentPage = 1;
@@ -489,9 +481,8 @@
             }
         }
         handleBuyInput("");
-        // Mostrar precio actual en el input de admin si existe
-        const adminInput = document.getElementById('laxPriceInput');
-        if(adminInput) adminInput.value = laxPriceUsd;
+        fetchLivePrice(); // Auto fetch on load
+        setInterval(fetchLivePrice, 60000); // Auto fetch every 60s
     };
 
     function unlockDashboard() {
@@ -507,11 +498,7 @@
             provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
             document.getElementById('walletAddress').innerText = "Wallet: " + accs[0].substring(0,6) + "..." + accs[0].substring(38);
-            if(accs[0].toLowerCase() === OWNER_ADDRESS.toLowerCase()) {
-                document.getElementById('adminPanel').style.display = 'block';
-                // Rellenar input de admin
-                document.getElementById('laxPriceInput').value = laxPriceUsd;
-            }
+            if(accs[0].toLowerCase() === OWNER_ADDRESS.toLowerCase()) document.getElementById('adminPanel').style.display = 'block';
             checkStakingAllowance(accs[0]);
             loadData();
             loadRecentBuys();
@@ -536,14 +523,34 @@
         } catch(e) { console.error(e); }
     }
 
+    // --- AUTO PRICE FETCH (NONKYC) ---
+    async function fetchLivePrice() {
+        try {
+            // Using public ticker endpoint (usually doesn't require key, but key variable is ready if needed in headers)
+            // Endpoint for LAX/USDT ticker
+            const response = await fetch('https://api.nonkyc.io/api/v2/ticker/LAX_USDT');
+            const data = await response.json();
+            if (data && data.last_price) {
+                laxPriceUsd = parseFloat(data.last_price);
+                // Update UI instantly
+                handleBuyInput(document.getElementById('laxInput').value);
+            }
+        } catch (e) {
+            console.log("Auto-price fetch failed, keeping default:", e);
+        }
+    }
+
     function handleBuyInput(valStr) {
         const val = parseFloat(valStr);
         const buyBtn = document.getElementById('buyBtn');
+        const warnMsg = document.getElementById('buy-warning');
+        
         document.getElementById('aspPreview').innerText = (val > 0) ? (val * currentExchangeRate).toLocaleString() : "0";
-        document.getElementById('usdCost').innerText = (val > 0) ? (val * laxPriceUsd).toFixed(2) : "0.00";
+        document.getElementById('usdCost').innerText = (val > 0) ? (val * laxPriceUsd).toFixed(4) : "0.00"; // More decimals for precision
         if (!val || val < 0.01) { 
             if(valStr !== "") document.getElementById('minError').style.display = 'block';
             buyBtn.disabled = true; buyBtn.classList.add('btn-disabled');
+            if(warnMsg) warnMsg.style.display = 'none';
         } else {
             document.getElementById('minError').style.display = 'none';
             buyBtn.disabled = false; buyBtn.classList.remove('btn-disabled');
@@ -553,6 +560,9 @@
 
     document.getElementById('buyBtn').onclick = async () => {
         const amt = document.getElementById('laxInput').value;
+        const warnMsg = document.getElementById('buy-warning');
+        if(warnMsg) warnMsg.style.display = 'block';
+
         try {
             await ensureNetwork();
             const wei = ethers.utils.parseUnits(amt.toString(), 18);
@@ -563,7 +573,12 @@
             await tx.wait();
             alert("SUCCESS! 🏺 $APEPE Purchased.");
             window.location.reload();
-        } catch(e) { console.error(e); alert("Transaction failed."); document.getElementById('pre-loading').classList.add('hidden'); document.getElementById('buy-section').classList.remove('hidden'); }
+        } catch(e) { 
+            console.error(e); alert("Transaction failed."); 
+            document.getElementById('pre-loading').classList.add('hidden'); 
+            document.getElementById('buy-section').classList.remove('hidden'); 
+            if(warnMsg) warnMsg.style.display = 'none';
+        }
     };
 
     // --- ADMIN ACTIONS ---
@@ -573,8 +588,6 @@
     document.getElementById('adminStartDexBtn').onclick = async () => {
         try { if(!confirm("⚠️ LAUNCH WARNING\n\nAre you sure you want to ENABLE DEX & START VESTING?\nThis cannot be undone.")) return; await ensureNetwork(); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.enableDex(); await tx.wait(); alert("DEX ENABLED! 🚀"); loadData(); } catch(e) { alert("Error: " + e.message); }
     };
-    
-    // SET CONTRACT RATE (TOKENS/LAX)
     document.getElementById('setRateBtn').onclick = async () => {
         const newRate = document.getElementById('newRateInput').value;
         if(!newRate || newRate <= 0) return alert("Please enter a valid rate.");
@@ -589,16 +602,6 @@
         } catch(e) { alert("Error: " + e.message); }
     };
 
-    // NEW: SET USD PRICE MANUAL (ONLY LOCAL/DISPLAY)
-    document.getElementById('updateLaxPriceBtn').onclick = () => {
-        const newPrice = parseFloat(document.getElementById('laxPriceInput').value);
-        if(!newPrice || newPrice <= 0) return alert("Invalid Price");
-        laxPriceUsd = newPrice;
-        localStorage.setItem('laxPriceUsd', newPrice); // Guardar para el futuro
-        alert(`USD Price updated to $${newPrice} locally.`);
-        handleBuyInput(document.getElementById('laxInput').value); // Refrescar calculo
-    };
-
     // --- STAKING ---
     async function checkStakingAllowance(user) { try { const aspC = new ethers.Contract(APEPE_ADDR, ABI, provider); const allow = await aspC.allowance(user, STAKE_ADDR); if(allow.gt(ethers.utils.parseEther("1000"))) showStep('stk', 2); } catch(e) { console.error(e); } }
     
@@ -611,6 +614,8 @@
              document.getElementById('stk-step1').classList.add('hidden');
              document.getElementById('stk-step2').classList.add('hidden');
              document.getElementById('stk-loading').classList.remove('hidden');
+             const warn = document.getElementById('warn-enable');
+             if(warn) warn.style.display = 'block';
         } else {
              document.getElementById('stk-step1').classList.remove('hidden');
              document.getElementById('stk-loading').classList.add('hidden');
@@ -618,7 +623,11 @@
         }
     }
 
-    document.getElementById('stk-approveBtn').onclick = async () => { try { await ensureNetwork(); const aspC = new ethers.Contract(APEPE_ADDR, ABI, signer); const tx = await aspC.approve(STAKE_ADDR, ethers.constants.MaxUint256); showStep('stk', 'loading'); await tx.wait(); showStep('stk', 2); } catch(e) { showStep('stk', 1); } };
+    document.getElementById('stk-approveBtn').onclick = async () => { 
+        const warn = document.getElementById('warn-enable');
+        if(warn) warn.style.display = 'block';
+        try { await ensureNetwork(); const aspC = new ethers.Contract(APEPE_ADDR, ABI, signer); const tx = await aspC.approve(STAKE_ADDR, ethers.constants.MaxUint256); showStep('stk', 'loading'); await tx.wait(); showStep('stk', 2); } catch(e) { showStep('stk', 1); } 
+    };
     document.getElementById('stakeBtn').onclick = async () => { const amt = document.getElementById('stakeInput').value; if (!amt || amt <= 0) return; try { await ensureNetwork(); const wei = ethers.utils.parseUnits(amt.toString(), 18); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.stake(wei, { gasLimit: 500000 }); showStep('stk', 'loading'); await tx.wait(); setTimeout(() => loadData(), 3000); alert("STAKING SUCCESSFUL! 🔒"); window.location.reload(); } catch(e) { alert("Staking failed."); showStep('stk', 2); } };
     document.getElementById('unstakeBtn').onclick = async () => { try { await ensureNetwork(); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const user = await signer.getAddress(); const bal = await stkC.balanceOf(user); let warningMsg = "Withdraw your Principal?"; try { const isPenalty = await stkC.isPenaltyActive(); if(isPenalty) warningMsg = "⚠️ WARNING: You are withdrawing BEFORE vesting ends.\n\nYou will receive your PRINCIPAL, but ALL REWARDS will be FORFEITED (Lost).\n\nAre you sure?"; } catch(e) {} if(bal.eq(0)) { alert("No stake to withdraw."); return; } if(!confirm(warningMsg)) return; const tx = await stkC.withdraw(bal, { gasLimit: 500000 }); await tx.wait(); setTimeout(() => loadData(), 3000); alert("PRINCIPAL WITHDRAWN! 🔓"); window.location.reload(); } catch(e) { alert("Error: " + e.message); } };
     document.getElementById('restakeBtn').onclick = async () => { try { await ensureNetwork(); document.getElementById('restake-ui').classList.add('hidden'); document.getElementById('restake-loading').classList.remove('hidden'); const stkC = new ethers.Contract(STAKE_ADDR, ABI, signer); const tx = await stkC.compound({ gasLimit: 500000 }); await tx.wait(); setTimeout(() => loadData(), 3000); alert("Compound Successful! ♻️"); window.location.reload(); } catch(e) { alert("Compound failed (Min 20 APEPE required)."); document.getElementById('restake-loading').classList.add('hidden'); document.getElementById('restake-ui').classList.remove('hidden'); } };
@@ -670,7 +679,7 @@
             
             const stkC = new ethers.Contract(STAKE_ADDR, ABI, provider);
             
-            // --- TOTAL STAKED (FIXED) ---
+            // --- TOTAL STAKED ---
             try {
                 const totalStakedBn = await stkC.totalSupply();
                 const totalStakedVal = parseFloat(ethers.utils.formatEther(totalStakedBn));
