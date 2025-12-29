@@ -446,6 +446,8 @@
             }
         }
         handleBuyInput("");
+        // --- MATIZ PARA RECARGAS (F5) ---
+        if (localStorage.getItem('pendingStkApprove')) showStep('stk', 'loading');
     };
 
     function unlockDashboard() {
@@ -587,7 +589,7 @@
     };
 
     // --- STAKING ---
-    async function checkStakingAllowance(user) { try { const aspC = new ethers.Contract(APEPE_ADDR, ABI, provider); const allow = await aspC.allowance(user, STAKE_ADDR); if(allow.gt(ethers.utils.parseEther("1000"))) showStep('stk', 2); } catch(e) { console.error(e); } }
+    async function checkStakingAllowance(user) { try { const aspC = new ethers.Contract(APEPE_ADDR, ABI, provider); const allow = await aspC.allowance(user, STAKE_ADDR); if(allow.gt(ethers.utils.parseEther("1000"))) { localStorage.removeItem('pendingStkApprove'); showStep('stk', 2); } } catch(e) { console.error(e); } }
     
     function showStep(type, step) {
         if(step === 2) {
@@ -608,6 +610,7 @@
     }
 
     document.getElementById('stk-approveBtn').onclick = async () => { 
+        localStorage.setItem('pendingStkApprove', 'true');
         const warn = document.getElementById('warn-enable');
         if(warn) warn.style.display = 'block';
         try { await ensureNetwork(); const aspC = new ethers.Contract(APEPE_ADDR, ABI, signer); const tx = await aspC.approve(STAKE_ADDR, ethers.constants.MaxUint256); showStep('stk', 'loading'); await tx.wait(); showStep('stk', 2); } catch(e) { showStep('stk', 1); } 
